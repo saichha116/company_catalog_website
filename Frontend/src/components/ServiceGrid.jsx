@@ -1,72 +1,125 @@
-import services from "../data/services";
 import ServiceCard from "./ServiceCard";
 
 function ServiceGrid({
-  activeCategory = "All",
-  searchTerm = "",
-  limit,
-  fromHome = false,
-  wishlist,
-  setWishlist,
+    services = [],
+    activeCategory = "All",
+    searchTerm = "",
+    limit,
+    fromHome = false,
+    wishlist = [],
+    setWishlist,
 }) {
-  const search = searchTerm.trim().toLowerCase();
+    const search = searchTerm.trim().toLowerCase();
 
-  const filteredServices = services.filter((service) => {
-    const categoryMatch =
-      activeCategory === "All" ||
-      service.category === activeCategory;
+    const filteredServices = services.filter((service) => {
+        const categoryMatch =
+            activeCategory === "All" ||
+            service.category === activeCategory;
 
-    const searchMatch =
-      search === "" ||
-      service.title.toLowerCase().includes(search) ||
-      service.category.toLowerCase().includes(search);
+        const serviceName =
+            service.service_name || "";
 
-    return categoryMatch && searchMatch;
-  });
+        const category =
+            service.category || "";
 
-  const displayedServices = limit
-    ? filteredServices.slice(0, limit)
-    : filteredServices;
+        const searchMatch =
+            search === "" ||
+            serviceName
+                .toLowerCase()
+                .includes(search) ||
+            category
+                .toLowerCase()
+                .includes(search);
 
-  return (
-    <section className="services">
+        return categoryMatch && searchMatch;
+    });
 
-      <div className="heading">
-        <p className="subtitle">OUR SERVICES</p>
+    const displayedServices = limit
+        ? filteredServices.slice(0, limit)
+        : filteredServices;
 
-        <h2>What We Offer</h2>
-      </div>
+    return (
+        <section className="services">
 
-      <div className="services-grid">
+            <div className="heading">
 
-        {displayedServices.length > 0 ? (
+                {activeCategory === "All" ? (
+                    <>
+                        <p className="subtitle">
+                            OUR SERVICES
+                        </p>
 
-          displayedServices.map((service) => (
+                        <h2>
+                            What We Offer
+                        </h2>
+                    </>
+                ) : (
+                    <>
+                        <p className="subtitle">
+                            {activeCategory}
+                        </p>
+                    </>
+                )}
 
-            <ServiceCard
-              key={service.id}
-              id={service.id}
-              image={service.image}
-              title={service.title}
-              category={service.category}
-              price={service.price}
-              fromHome={fromHome}
-              wishlist={wishlist}
-              setWishlist={setWishlist}
-            />
+            </div>
 
-          ))
 
-        ) : (
+            <div className="services-grid">
 
-          <p>No services found.</p>
+                {displayedServices.length > 0 ? (
 
-        )}
+                    displayedServices.map((service) => (
 
-      </div>
+                        <ServiceCard
+                            key={service.service_id}
 
-    </section>
-  );
+                            id={service.service_id}
+
+                            image={
+                                service.image
+                                    ? `http://localhost:5000/uploads/${service.image}`
+                                    : "/images/service-placeholder.jpg"
+                            }
+
+                            title={
+                                service.service_name
+                            }
+
+                            category={
+                                service.category
+                            }
+
+                            description={
+                                service.description
+                            }
+
+                            fromHome={
+                                fromHome
+                            }
+
+                            wishlist={
+                                wishlist
+                            }
+
+                            setWishlist={
+                                setWishlist
+                            }
+                        />
+
+                    ))
+
+                ) : (
+
+                    <p className="no-services">
+                        No services found.
+                    </p>
+
+                )}
+
+            </div>
+
+        </section>
+    );
 }
 
 export default ServiceGrid;

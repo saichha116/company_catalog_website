@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa";
+
 import "../styles/CheckoutPage.css";
 
-function CheckoutPage({ cart }) {
+function CheckoutPage() {
+  const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [customer, setCustomer] = useState({
     name: "",
@@ -10,9 +13,85 @@ function CheckoutPage({ cart }) {
     address: "",
   });
 
-  // =========================
-  // HANDLE INPUT
-  // =========================
+  const getUser = () => {
+    const savedUser = localStorage.getItem("user");
+
+    if (!savedUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(savedUser);
+    } catch (error) {
+      console.error("Invalid user data:", error);
+      return null;
+    }
+  };
+
+  const user = getUser();
+
+  const getImageUrl = (image) => {
+    if (!image) {
+      return "/images/product-placeholder.jpg";
+    }
+
+    if (
+      image.startsWith("http://") ||
+      image.startsWith("https://")
+    ) {
+      return image;
+    }
+
+    return `http://localhost:5000/uploads/${image}`;
+  };
+
+  const getItemName = (item) => {
+    if (item.type === "service") {
+      return item.service_name || item.name || "Service";
+    }
+
+    return item.product_name || item.name || "Product";
+  };
+
+  const loadCart = async () => {
+    if (!user?.id) {
+      setCart([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/cart/${user.id}`
+      );
+
+      const data = await response.json();
+
+      console.log("Checkout cart from database:", data);
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to load cart"
+        );
+      }
+
+      setCart(data);
+    } catch (error) {
+      console.error(
+        "Checkout cart loading error:",
+        error
+      );
+
+      setCart([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCart();
+  }, [user?.id]);
+
   const handleChange = (e) => {
     setCustomer({
       ...customer,
@@ -20,12 +99,7 @@ function CheckoutPage({ cart }) {
     });
   };
 
-  // =========================
-  // PLACE ORDER ON WHATSAPP
-  // =========================
   const handleWhatsAppOrder = () => {
-
-    // Check customer details
     if (
       !customer.name.trim() ||
       !customer.phone.trim() ||
@@ -35,250 +109,244 @@ function CheckoutPage({ cart }) {
       return;
     }
 
-    // Check cart
     if (!cart || cart.length === 0) {
       alert("Your cart is empty.");
       return;
     }
 
-    // =========================
-    // CREATE WHATSAPP MESSAGE
-    // =========================
+    /*
+      Replace this number with your actual WhatsApp number.
+
+      Format:
+      Country code + phone number
+      No + sign
+      No spaces
+      No brackets
+    */
+    const whatsappNumber = "919403213361";
 
     let message =
-      "Hello, I would like to place an order.%0A%0A";
+      "Hello, I would like to place an order.\n\n";
 
-    message +=
-      `Customer Name: ${customer.name}%0A`;
+    message += `Customer Name: ${customer.name}\n`;
+    message += `Phone Number: ${customer.phone}\n`;
+    message += `Address: ${customer.address}\n\n`;
 
-    message +=
-      `Phone Number: ${customer.phone}%0A`;
-
-    message +=
-      `Address: ${customer.address}%0A%0A`;
-
-    message += "Order Details:%0A";
+    message += "Order Details:\n";
 
     cart.forEach((item) => {
+      const quantity = Number(item.quantity || 1);
+      const itemName = getItemName(item);
 
-      const quantity = item.quantity || 1;
-
-      message +=
-        `${item.name} - Quantity: ${quantity}%0A`;
-
+      if (item.type === "service") {
+        message += `Service: ${itemName} - Quantity: ${quantity}\n`;
+      } else {
+        message += `Product: ${itemName} - Quantity: ${quantity}\n`;
+      }
     });
 
-    // =========================
-    // WHATSAPP NUMBER
-    // =========================
-
-    // Replace this with your business WhatsApp number.
-    // Include country code 91.
-    // Do NOT use + or spaces.
-
-    const whatsappNumber = "919999999999";
+    const encodedMessage = encodeURIComponent(message);
 
     const whatsappURL =
-      `https://wa.me/${whatsappNumber}?text=${message}`;
+      `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
-    // Open WhatsApp
-    window.open(
-      whatsappURL,
-      "_blank"
-    );
+    window.open(whatsappURL, "_blank");
   };
+
+  if (loading) {
+    return (
+      <div className="checkout-page">
+        <div className="checkout-container">
+
+          <div className="checkout-heading">
+            <h1>Checkout</h1>
+            <div className="heading-line"></div>
+          </div>
+
+          <div className="checkout-empty">
+            <p>Loading your cart...</p>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  if (!user?.id) {
+    return (
+      <div className="checkout-page">
+        <div className="checkout-container">
+
+          <div className="checkout-heading">
+            <h1>Checkout</h1>
+            <div className="heading-line"></div>
+          </div>
+
+          <div className="checkout-empty">
+            <h2>Please Login</h2>
+
+            <p>
+              Please login to continue with your order.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  if (cart.length === 0) {
+    return (
+      <div className="checkout-page">
+        <div className="checkout-container">
+
+          <div className="checkout-heading">
+            <h1>Checkout</h1>
+            <div className="heading-line"></div>
+          </div>
+
+          <div className="checkout-empty">
+            <h2>Your cart is empty</h2>
+
+            <p>
+              Please add products or services to your
+              cart before checkout.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="checkout-page">
-
-      {/* =========================
-          TITLE
-      ========================= */}
-
-      <h1>Checkout</h1>
-
-
-      {/* =========================
-          TWO COLUMN CONTAINER
-      ========================= */}
-
       <div className="checkout-container">
 
-
-        {/* =========================
-            ORDER SUMMARY
-        ========================= */}
-
-        <div className="checkout-box">
-
-          <div className="box-heading">
-
-            <div className="heading-icon">
-              📋
-            </div>
-
-            <div>
-
-              <h2>
-                Order Summary
-              </h2>
-
-              <p>
-                Review the items that you have selected
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div className="checkout-items">
-
-            {cart && cart.length > 0 ? (
-
-              cart.map((item) => (
-
-                <div
-                  className="checkout-item"
-                  key={item.id}
-                >
-
-                  {/* PRODUCT IMAGE */}
-
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                  />
-
-
-                  {/* PRODUCT NAME */}
-
-                  <div className="item-name">
-                    {item.name}
-                  </div>
-
-
-                  {/* QUANTITY */}
-
-                  <div className="quantity">
-                    Quantity: {item.quantity || 1}
-                  </div>
-
-                </div>
-
-              ))
-
-            ) : (
-
-              <p className="empty-message">
-                Your cart is empty.
-              </p>
-
-            )}
-
-          </div>
-
+        <div className="checkout-heading">
+          <h1>Checkout</h1>
+          <div className="heading-line"></div>
         </div>
 
+        <div className="checkout-layout">
 
-        {/* =========================
-            CUSTOMER DETAILS
-        ========================= */}
+          {/* CUSTOMER DETAILS */}
 
-        <div className="checkout-box">
+          <div className="customer-details">
 
-          <div className="box-heading">
+            <h2>Customer Details</h2>
 
-            <div className="heading-icon">
-              👤
+            <div className="form-group">
+              <label htmlFor="name">
+                Full Name
+              </label>
+
+              <input
+                id="name"
+                type="text"
+                name="name"
+                value={customer.name}
+                onChange={handleChange}
+                placeholder="Enter your full name"
+              />
             </div>
 
-            <div>
+            <div className="form-group">
+              <label htmlFor="phone">
+                Phone Number
+              </label>
 
-              <h2>
-                Customer Details
-              </h2>
+              <input
+                id="phone"
+                type="tel"
+                name="phone"
+                value={customer.phone}
+                onChange={handleChange}
+                placeholder="Enter your phone number"
+              />
+            </div>
 
-              <p>
-                Please enter your details to place an order
-              </p>
+            <div className="form-group">
+              <label htmlFor="address">
+                Address
+              </label>
 
+              <textarea
+                id="address"
+                name="address"
+                value={customer.address}
+                onChange={handleChange}
+                placeholder="Enter your address"
+                rows="5"
+              ></textarea>
             </div>
 
           </div>
 
+          {/* ORDER SUMMARY */}
 
-          <div className="customer-form">
+          <div className="order-summary">
 
+            <h2>Order Summary</h2>
 
-            {/* FULL NAME */}
+            <div className="checkout-items">
 
-            <label>
-              Full Name
-            </label>
+              {cart.map((item) => {
+                const itemName = getItemName(item);
 
-            <input
-              type="text"
-              name="name"
-              value={customer.name}
-              onChange={handleChange}
-            />
+                return (
+                  <div
+                    className="checkout-item"
+                    key={item.cart_item_id}
+                  >
 
+                    <img
+                      src={getImageUrl(item.image)}
+                      alt={itemName}
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "/images/product-placeholder.jpg";
+                      }}
+                    />
 
-            {/* PHONE NUMBER */}
+                    <div className="checkout-item-info">
 
-            <label>
-              Phone Number
-            </label>
+                      <p className="checkout-item-type">
+                        {item.type === "service"
+                          ? "SERVICE"
+                          : "PRODUCT"}
+                      </p>
 
-            <input
-              type="tel"
-              name="phone"
-              value={customer.phone}
-              onChange={handleChange}
-            />
+                      <h3>
+                        {itemName}
+                      </h3>
 
+                      <p>
+                        Quantity: {item.quantity}
+                      </p>
 
-            {/* ADDRESS */}
+                    </div>
 
-            <label>
-              Address
-            </label>
+                  </div>
+                );
+              })}
 
-            <textarea
-              name="address"
-              value={customer.address}
-              onChange={handleChange}
-              rows="4"
-            />
+            </div>
+
+            <button
+              type="button"
+              className="whatsapp-order-btn"
+              onClick={handleWhatsAppOrder}
+            >
+              <FaWhatsapp />
+              PLACE ORDER ON WHATSAPP
+            </button>
 
           </div>
 
         </div>
 
       </div>
-
-
-      {/* =========================
-          WHATSAPP BUTTON
-      ========================= */}
-
-      <div className="checkout-button-container">
-
-        <button
-          type="button"
-          className="whatsapp-button"
-          onClick={handleWhatsAppOrder}
-        >
-
-       <FaWhatsapp className="whatsapp-icon" />
-
-         <span>Place order on Whatsapp</span>
-
-        </button>
-
-      </div>
-
     </div>
   );
 }

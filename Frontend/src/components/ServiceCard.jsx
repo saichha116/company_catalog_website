@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 
 function ServiceCard({
@@ -13,10 +12,7 @@ function ServiceCard({
 }) {
   const navigate = useNavigate();
 
-  // =========================
   // GET LOGGED-IN USER
-  // =========================
-
   const getUser = () => {
     const savedUser = localStorage.getItem("user");
 
@@ -34,22 +30,14 @@ function ServiceCard({
 
   const user = getUser();
 
-
-  // =========================
   // CHECK IF SERVICE IS LIKED
-  // =========================
-
   const isLiked = wishlist.some(
     (item) =>
       Number(item.id) === Number(id) &&
       item.type === "service"
   );
 
-
-  // =========================
   // OPEN SERVICE DETAILS
-  // =========================
-
   const openDetails = () => {
     if (fromHome) {
       navigate("/services");
@@ -58,19 +46,13 @@ function ServiceCard({
     }
   };
 
-
-  // =========================
   // LOAD WISHLIST
-  // =========================
-
   const loadWishlist = async () => {
-
     if (!user?.id) {
       return [];
     }
 
     try {
-
       const response = await fetch(
         `http://localhost:5000/api/wishlist/${user.id}`
       );
@@ -84,248 +66,151 @@ function ServiceCard({
       setWishlist(data);
 
       return data;
-
     } catch (error) {
-
-      console.error(
-        "Error loading wishlist:",
-        error
-      );
-
+      console.error("Error loading wishlist:", error);
       return [];
     }
   };
 
-
-  // =========================
   // TOGGLE WISHLIST
-  // =========================
-
   const toggleWishlist = async (e) => {
-
     e.stopPropagation();
 
-
-    // User must be logged in
-
     if (!user || !user.id) {
-
-      alert(
-        "Please login to use wishlist."
-      );
-
+      alert("Please login to use wishlist.");
       return;
     }
 
-
     const userId = user.id;
 
-
     try {
-
-      // =================================================
       // REMOVE SERVICE
-      // =================================================
-
       if (isLiked) {
-
         const response = await fetch(
           "http://localhost:5000/api/wishlist",
           {
             method: "DELETE",
-
             headers: {
-              "Content-Type":
-                "application/json",
+              "Content-Type": "application/json",
             },
-
             body: JSON.stringify({
-
               user_id: userId,
-
               item_id: id,
-
               item_type: "service",
-
             }),
           }
         );
 
-
-        const data =
-          await response.json();
-
+        const data = await response.json();
 
         if (!response.ok) {
-
           throw new Error(
             data.message ||
-            "Failed to remove service from wishlist"
+              "Failed to remove service from wishlist"
           );
-
         }
 
+        await loadWishlist();
 
-        // Update React state
-
-        setWishlist(
-          wishlist.filter(
-            (item) =>
-              !(
-                Number(item.id) === Number(id) &&
-                item.type === "service"
-              )
-          )
-        );
-
-
-        alert(
-          `${title} removed from wishlist!`
-        );
-
+        alert(`${title} removed from wishlist!`);
 
         return;
       }
 
-
-      // =================================================
-      // ADD SERVICE
-      // =================================================
-
+      // ADD SERVICE TO WISHLIST
       const response = await fetch(
         "http://localhost:5000/api/wishlist",
         {
           method: "POST",
-
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
-
             user_id: userId,
-
             item_id: id,
-
             item_type: "service",
-
           }),
         }
       );
 
-
-      const data =
-        await response.json();
-
-
-      // =================================================
-      // ALREADY EXISTS
-      // =================================================
+      const data = await response.json();
 
       if (response.status === 409) {
+        await loadWishlist();
 
-        console.log(
-          "Service already exists. Synchronizing wishlist..."
-        );
-
-
-        const latestWishlist =
-          await loadWishlist();
-
-
-        const alreadyExists =
-          latestWishlist.some(
-            (item) =>
-              Number(item.id) === Number(id) &&
-              item.type === "service"
-          );
-
-
-        if (alreadyExists) {
-
-          alert(
-            `${title} is already in your wishlist.`
-          );
-
-        }
-
+        alert(`${title} is already in your wishlist.`);
 
         return;
       }
 
-
-      // =================================================
-      // OTHER ERROR
-      // =================================================
-
       if (!response.ok) {
-
         throw new Error(
           data.message ||
-          "Failed to add service to wishlist"
+            "Failed to add service to wishlist"
         );
-
       }
 
+      await loadWishlist();
 
-      // =================================================
-      // ADD TO REACT STATE
-      // =================================================
-
-      setWishlist([
-
-        ...wishlist,
-
-        {
-
-          wishlist_id:
-            data.wishlist_id,
-
-          id: id,
-
-          name: title,
-
-          title: title,
-
-          description: "",
-
-          image: image,
-
-          category: category,
-
-          price: price,
-
-          type: "service",
-
-        },
-
-      ]);
-
-
-      alert(
-        `${title} added to wishlist!`
-      );
-
+      alert(`${title} added to wishlist!`);
     } catch (error) {
-
-      console.error(
-        "Wishlist error:",
-        error
-      );
-
+      console.error("Wishlist error:", error);
 
       alert(
         error.message ||
-        "Something went wrong with wishlist."
+          "Something went wrong with wishlist."
       );
-
     }
   };
 
+  // ADD SERVICE TO CART
+  const handleAddToCart = async (e) => {
+    e.stopPropagation();
+
+    if (!user || !user.id) {
+      alert("Please login to add services to cart.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/cart",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            service_id: id,
+            quantity: 1,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      console.log("ADD SERVICE TO CART RESPONSE:", data);
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Failed to add service to cart"
+        );
+      }
+
+      alert(`${title} added to cart!`);
+    } catch (error) {
+      console.error("Add service to cart error:", error);
+
+      alert(
+        error.message ||
+          "Something went wrong while adding the service to cart."
+      );
+    }
+  };
 
   return (
-
     <div
       className="service-card"
       onClick={openDetails}
@@ -333,23 +218,14 @@ function ServiceCard({
         cursor: "pointer",
       }}
     >
-
-      {/* =========================
-          IMAGE
-      ========================= */}
-
+      {/* IMAGE */}
       <div className="card-image">
-
         <img
           src={image}
           alt={title}
         />
 
-
-        {/* =========================
-            WISHLIST
-        ========================= */}
-
+        {/* WISHLIST */}
         <button
           type="button"
           className={`like-button ${
@@ -362,58 +238,41 @@ function ServiceCard({
               : "Add to wishlist"
           }
         >
-
           {isLiked ? "♥" : "♡"}
-
         </button>
-
       </div>
 
-
-      {/* =========================
-          CARD CONTENT
-      ========================= */}
-
+      {/* CARD CONTENT */}
       <div className="card-content">
-
         <p className="category">
           {category}
         </p>
 
+        <h3>{title}</h3>
 
-        <h3>
-          {title}
-        </h3>
+        {/* ASK FOR PRICE */}
+        <a
+          href={`https://wa.me/919422588241?text=${encodeURIComponent(
+            `Hello, I would like to ask for the price of ${title}.`
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ask-price"
+          onClick={(e) => e.stopPropagation()}
+        >
+          Ask for Price
+        </a>
 
-
-        <p className="price">
-          {price}
-        </p>
-
-
-        {/* =========================
-            ADD TO CART
-        ========================= */}
-
+        {/* ADD TO CART */}
         <button
           type="button"
-          onClick={(e) => {
-
-            e.stopPropagation();
-
-            // Add cart functionality here later
-
-          }}
+          onClick={handleAddToCart}
         >
           Add to Cart
         </button>
-
       </div>
-
     </div>
-
   );
 }
 
 export default ServiceCard;
-

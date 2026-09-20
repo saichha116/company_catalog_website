@@ -11,7 +11,7 @@ const productRoutes = require("./routes/productRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const subcategoryRoutes = require("./routes/subcategoryRoutes");
-
+const serviceRoutes = require("./routes/serviceRoutes");
 const app = express();
 
 // ================= MIDDLEWARE =================
@@ -32,7 +32,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/subcategories", subcategoryRoutes);
-
+app.use("/api/services", serviceRoutes);
 // ================= HOME / TEST =================
 
 app.get("/", (req, res) => {

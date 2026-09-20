@@ -1,9 +1,15 @@
-import services from "../data/services";
-
-function CategoryBar({ activeCategory, setActiveCategory }) {
+function CategoryBar({
+  services = [],
+  activeCategory,
+  setActiveCategory,
+}) {
   const categories = [
     "All",
-    ...new Set(services.map((service) => service.category)),
+    ...new Set(
+      services
+        .map((service) => service.category)
+        .filter(Boolean)
+    ),
   ];
 
   return (
@@ -11,7 +17,9 @@ function CategoryBar({ activeCategory, setActiveCategory }) {
       {categories.map((category) => (
         <button
           key={category}
-          className={activeCategory === category ? "active" : ""}
+          className={
+            activeCategory === category ? "active" : ""
+          }
           onClick={() => setActiveCategory(category)}
         >
           {category}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate, Link, NavLink } from "react-router-dom";
 import logo from "../../assets/logo.jpeg";
 
 import {
@@ -9,13 +10,9 @@ import {
   FaEdit,
 } from "react-icons/fa";
 
-import { Link } from "react-router-dom";
-
 function Navbar({ searchTerm, setSearchTerm }) {
+  const navigate = useNavigate();
 
-  // =========================
-  // GET LOGGED-IN USER
-  // =========================
   const getUser = () => {
     const savedUser = localStorage.getItem("user");
 
@@ -28,36 +25,21 @@ function Navbar({ searchTerm, setSearchTerm }) {
 
   const [user, setUser] = useState(getUser());
 
-  // =========================
-  // PROFILE POPUP
-  // =========================
   const [showProfile, setShowProfile] = useState(false);
 
-  // =========================
-  // EDIT PROFILE
-  // =========================
   const [isEditing, setIsEditing] = useState(false);
-
   const [editName, setEditName] = useState(user?.name || "");
   const [editPhone, setEditPhone] = useState(user?.phone || "");
   const [editEmail, setEditEmail] = useState(user?.email || "");
 
-  // =========================
-  // OPEN EDIT MODE
-  // =========================
   const handleEdit = () => {
     setEditName(user?.name || "");
     setEditPhone(user?.phone || "");
     setEditEmail(user?.email || "");
-
     setIsEditing(true);
   };
 
-  // =========================
-  // SAVE PROFILE
-  // =========================
   const handleSave = () => {
-
     const updatedUser = {
       ...user,
       name: editName,
@@ -65,46 +47,42 @@ function Navbar({ searchTerm, setSearchTerm }) {
       email: editEmail,
     };
 
-    // Save updated user
-    localStorage.setItem(
-      "user",
-      JSON.stringify(updatedUser)
-    );
+    localStorage.setItem("user", JSON.stringify(updatedUser));
 
-    // Update Navbar immediately
     setUser(updatedUser);
-
     setIsEditing(false);
 
     alert("Profile updated successfully!");
   };
 
-  // =========================
-  // LOGOUT
-  // =========================
   const handleLogout = () => {
-
     localStorage.removeItem("user");
-
     setUser(null);
     setShowProfile(false);
 
     alert("You have been logged out!");
   };
 
-  // =========================
-  // USER INITIAL
-  // =========================
   const userInitial = user?.name
     ? user.name.charAt(0).toUpperCase()
     : "U";
 
+  const handleSearch = (e) => {
+    if (e.key === "Enter") {
+      const search = searchTerm.trim();
+
+      if (search) {
+        navigate(
+          `/products?search=${encodeURIComponent(search)}`
+        );
+      } else {
+        navigate("/products");
+      }
+    }
+  };
+
   return (
     <>
-      {/* =====================================
-          TOP NAVBAR
-      ====================================== */}
-
       <div
         style={{
           display: "flex",
@@ -115,11 +93,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
           borderBottom: "1px solid #ddd",
         }}
       >
-
-        {/* =====================================
-            LOGO
-        ====================================== */}
-
         <div>
           <img
             src={logo}
@@ -133,18 +106,12 @@ function Navbar({ searchTerm, setSearchTerm }) {
           />
         </div>
 
-
-        {/* =====================================
-            SEARCH BAR
-        ====================================== */}
-
         <div
           style={{
             position: "relative",
             width: "600px",
           }}
         >
-
           <FaSearch
             style={{
               position: "absolute",
@@ -163,6 +130,7 @@ function Navbar({ searchTerm, setSearchTerm }) {
             onChange={(e) =>
               setSearchTerm(e.target.value)
             }
+            onKeyDown={handleSearch}
             style={{
               width: "100%",
               height: "45px",
@@ -176,13 +144,7 @@ function Navbar({ searchTerm, setSearchTerm }) {
               boxSizing: "border-box",
             }}
           />
-
         </div>
-
-
-        {/* =====================================
-            ICONS
-        ====================================== */}
 
         <div
           style={{
@@ -193,9 +155,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
             alignItems: "center",
           }}
         >
-
-          {/* WISHLIST */}
-
           <Link
             to="/wishlist"
             style={{
@@ -205,9 +164,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
           >
             <FaHeart />
           </Link>
-
-
-          {/* CART */}
 
           <Link
             to="/cart"
@@ -221,19 +177,11 @@ function Navbar({ searchTerm, setSearchTerm }) {
             <FaShoppingCart />
           </Link>
 
-
-          {/* =====================================
-              PROFILE
-          ====================================== */}
-
           <div
             style={{
               position: "relative",
             }}
           >
-
-            {/* PROFILE CIRCLE */}
-
             <div
               onClick={() =>
                 setShowProfile(!showProfile)
@@ -255,13 +203,7 @@ function Navbar({ searchTerm, setSearchTerm }) {
               {userInitial}
             </div>
 
-
-            {/* =====================================
-                PROFILE POPUP
-            ====================================== */}
-
             {showProfile && (
-
               <div
                 style={{
                   position: "absolute",
@@ -278,9 +220,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
                   color: "#000",
                 }}
               >
-
-                {/* CLOSE BUTTON */}
-
                 <FaTimes
                   onClick={() =>
                     setShowProfile(false)
@@ -293,9 +232,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
                     fontSize: "16px",
                   }}
                 />
-
-
-                {/* PROFILE INITIAL */}
 
                 <div
                   style={{
@@ -315,36 +251,20 @@ function Navbar({ searchTerm, setSearchTerm }) {
                   {userInitial}
                 </div>
 
-
                 {!user ? (
-
-                  /* =====================================
-                     NOT LOGGED IN
-                  ====================================== */
-
                   <div
                     style={{
                       textAlign: "center",
                     }}
                   >
-
                     <h3>Welcome!</h3>
-
                     <p>
                       Please login to view your
                       profile.
                     </p>
-
                   </div>
-
                 ) : isEditing ? (
-
-                  /* =====================================
-                     EDIT PROFILE
-                  ====================================== */
-
                   <div>
-
                     <h3
                       style={{
                         textAlign: "center",
@@ -353,9 +273,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
                     >
                       Edit Profile
                     </h3>
-
-
-                    {/* NAME */}
 
                     <label>Name</label>
 
@@ -376,9 +293,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
                       }}
                     />
 
-
-                    {/* PHONE */}
-
                     <label>Phone Number</label>
 
                     <input
@@ -397,9 +311,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
                         boxSizing: "border-box",
                       }}
                     />
-
-
-                    {/* EMAIL */}
 
                     <label>Email</label>
 
@@ -420,9 +331,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
                       }}
                     />
 
-
-                    {/* SAVE */}
-
                     <button
                       onClick={handleSave}
                       style={{
@@ -438,9 +346,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
                     >
                       Save Changes
                     </button>
-
-
-                    {/* CANCEL */}
 
                     <button
                       onClick={() =>
@@ -458,17 +363,9 @@ function Navbar({ searchTerm, setSearchTerm }) {
                     >
                       Cancel
                     </button>
-
                   </div>
-
                 ) : (
-
-                  /* =====================================
-                     DISPLAY PROFILE
-                  ====================================== */
-
                   <div>
-
                     <h3
                       style={{
                         textAlign: "center",
@@ -478,24 +375,15 @@ function Navbar({ searchTerm, setSearchTerm }) {
                       {user.name}
                     </h3>
 
-
-                    {/* NAME */}
-
                     <p>
                       <strong>Name:</strong>{" "}
                       {user.name}
                     </p>
 
-
-                    {/* PHONE */}
-
                     <p>
                       <strong>Phone:</strong>{" "}
                       {user.phone}
                     </p>
-
-
-                    {/* EMAIL */}
 
                     <p
                       style={{
@@ -505,9 +393,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
                       <strong>Email:</strong>{" "}
                       {user.email}
                     </p>
-
-
-                    {/* EDIT */}
 
                     <button
                       onClick={handleEdit}
@@ -530,9 +415,6 @@ function Navbar({ searchTerm, setSearchTerm }) {
                       Edit Profile
                     </button>
 
-
-                    {/* LOGOUT */}
-
                     <button
                       onClick={handleLogout}
                       style={{
@@ -548,76 +430,119 @@ function Navbar({ searchTerm, setSearchTerm }) {
                     >
                       Logout
                     </button>
-
                   </div>
-
                 )}
-
               </div>
-
             )}
-
           </div>
-
         </div>
-
       </div>
-
-
-      {/* =====================================
-          MENU
-      ====================================== */}
 
       <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          gap: "40px",
-          padding: "15px 30px",
-          background: "#fff",
-          borderBottom: "1px solid #ddd",
-        }}
-      >
+  style={{
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    gap: "40px",
+    padding: "15px 30px",
+    background: "#fff",
+    borderBottom: "1px solid #ddd",
+  }}
+>
+  <NavLink
+    to="/"
+    end
+    style={({ isActive }) => ({
+      textDecoration: "none",
+      color: "#000",
+      fontSize: "25px",
+      fontFamily: "Intel",
+      position: "relative",
+      paddingBottom: "8px",
+    })}
+  >
+    {({ isActive }) => (
+      <>
+        Home
+        {isActive && (
+          <span
+            style={{
+              position: "absolute",
+              left: "0",
+              right: "0",
+              bottom: "0",
+              height: "3px",
+              background: "#000",
+              borderRadius: "2px",
+            }}
+          />
+        )}
+      </>
+    )}
+  </NavLink>
 
-        <Link
-          to="/"
-          style={{
-            textDecoration: "none",
-            color: "#000",
-            fontSize: "25px",
-            fontFamily:"Intel",
-          }}
-        >
-          Home
-        </Link>
+  <NavLink
+    to="/about"
+    style={{
+      textDecoration: "none",
+      color: "#000",
+      fontSize: "25px",
+      fontFamily: "Intel",
+      position: "relative",
+      paddingBottom: "8px",
+    }}
+  >
+    {({ isActive }) => (
+      <>
+        About
+        {isActive && (
+          <span
+            style={{
+              position: "absolute",
+              left: "0",
+              right: "0",
+              bottom: "0",
+              height: "3px",
+              background: "#000",
+              borderRadius: "2px",
+            }}
+          />
+        )}
+      </>
+    )}
+  </NavLink>
 
-        <Link
-          to="/about"
-          style={{
-            textDecoration: "none",
-            color: "#000",
-            fontSize: "25px",
-            fontFamily:"Intel",
-          }}
-        >
-          About
-        </Link>
-
-        <Link
-          to="/contact"
-          style={{
-            textDecoration: "none",
-            color: "#000",
-            fontSize: "25px",
-            fontFamily:"Intel",
-          }}
-        >
-          Contact
-        </Link>
-
-      </div>
-
+  <NavLink
+    to="/contact"
+    style={{
+      textDecoration: "none",
+      color: "#000",
+      fontSize: "25px",
+      fontFamily: "Intel",
+      position: "relative",
+      paddingBottom: "8px",
+    }}
+  >
+    {({ isActive }) => (
+      <>
+        Contact
+        {isActive && (
+          <span
+            style={{
+              position: "absolute",
+              left: "0",
+              right: "0",
+              bottom: "0",
+              height: "3px",
+              background: "#000",
+              borderRadius: "2px",
+            }}
+          />
+        )}
+      </>
+    )}
+  </NavLink>
+</div>
     </>
   );
 }

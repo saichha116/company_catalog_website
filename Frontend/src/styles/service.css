@@ -29,11 +29,8 @@ NAVBAR
 .navbar {
   width: 100%;
   background: #fff;
-
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
   padding: 12px 30px 8px;
-
   position: relative;
   z-index: 100;
 }
@@ -46,11 +43,9 @@ NAVBAR TOP
 .navbar-top {
   width: 100%;
   height: 55px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   position: relative;
 }
 
@@ -62,21 +57,16 @@ LOGO
 .logo {
   position: absolute;
   left: 0;
-
   display: flex;
   align-items: center;
-
   text-decoration: none !important;
 }
 
 .logo img {
   width: 50px;
   height: 50px;
-
   border-radius: 50%;
-
   object-fit: cover;
-
   display: block;
 }
 
@@ -87,45 +77,30 @@ SEARCH BOX
 
 .search-box {
   position: relative;
-
   width: 420px;
-
   display: flex;
   align-items: center;
 }
 
 .search-icon {
   position: absolute;
-
   left: 16px;
   top: 50%;
-
   transform: translateY(-50%);
-
   color: #666;
-
   font-size: 15px;
-
   z-index: 2;
 }
 
 .search-box input {
   width: 100%;
-
   height: 38px;
-
   padding: 0 18px 0 42px;
-
   border: 1px solid #ccc;
-
   border-radius: 22px;
-
   background: #fff;
-
   color: #222;
-
   font-size: 14px;
-
   outline: none;
 }
 
@@ -144,29 +119,22 @@ NAVBAR ICONS
 
 .nav-icons {
   position: absolute;
-
   right: 0;
-
   display: flex;
   align-items: center;
-
   gap: 20px;
 }
 
 .nav-icon {
   width: 20px;
   height: 20px;
-
   color: #222;
-
   cursor: pointer;
-
   transition: 0.2s ease;
 }
 
 .nav-icon:hover {
   color: #666;
-
   transform: scale(1.08);
 }
 
@@ -177,19 +145,12 @@ NAVIGATION
 
 .nav-links {
   width: 100%;
-
   display: flex;
-
   align-items: center;
-
   justify-content: flex-start;
-
   gap: 28px;
-
   padding-top: 8px;
 }
-
-/* Remove underline completely */
 
 .nav-links .nav-link,
 .nav-links .nav-link:visited,
@@ -197,27 +158,16 @@ NAVIGATION
 .nav-links .nav-link:active,
 .nav-links .nav-link:focus {
   display: inline-block;
-
   color: #111 !important;
-
   font-family: Arial, sans-serif;
-
   font-size: 14px;
-
   font-weight: 500;
-
   text-decoration: none !important;
-
   text-decoration-line: none !important;
-
   border: none !important;
-
   border-bottom: none !important;
-
   box-shadow: none !important;
-
   outline: none;
-
   cursor: pointer;
 }
 
@@ -232,46 +182,30 @@ HERO BANNER
 
 .hero-banner {
   width: 100%;
-
   height: 200px;
-
   background-size: cover;
-
   background-position: center;
-
   background-repeat: no-repeat;
-
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
   position: relative;
 }
 
 .hero-overlay {
   width: 100%;
   height: 100%;
-
   background: rgba(0, 0, 0, 0.45);
-
   display: flex;
-
   flex-direction: column;
-
   justify-content: center;
-
   align-items: center;
-
   color: white;
-
   text-align: center;
 }
 
 .hero-overlay h1 {
   font-size: 60px;
-
   margin-bottom: 10px;
 }
 
@@ -286,66 +220,46 @@ OLD HERO
 
 .hero {
   width: 90%;
-
   margin: 40px auto;
-
   position: relative;
-
   overflow: hidden;
-
   border-radius: 20px;
 }
 
 .hero img {
   width: 100%;
-
   height: 400px;
-
   object-fit: cover;
-
   display: block;
 }
 
 .hero-content {
   position: absolute;
-
   top: 50%;
   left: 50%;
-
   transform: translate(-50%, -50%);
-
   color: #fff;
-
   text-align: center;
-
   width: 90%;
 }
 
 .hero-content h1 {
   font-size: 48px;
-
   margin-bottom: 15px;
 }
 
 .hero-content p {
   font-size: 22px;
-
   margin-bottom: 25px;
 }
 
 .hero-content button {
   padding: 14px 35px;
-
   border: none;
-
   border-radius: 10px;
-
   background: #000;
-
   color: #fff;
-
   font-size: 18px;
-
   cursor: pointer;
 }
 
@@ -360,49 +274,33 @@ CATEGORY BAR
 
 .category-bar {
   width: 90%;
-
   margin: 40px auto;
-
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
   gap: 15px;
-
   flex-wrap: wrap;
 }
 
 .category-bar button {
   padding: 12px 28px;
-
   border: none;
-
   border-radius: 30px;
-
   background: #f1f1f1;
-
   color: #111;
-
   font-size: 16px;
-
   cursor: pointer;
-
   transition: 0.3s ease;
 }
 
 .category-bar button:hover {
   transform: translateY(-3px);
-
   background: #ddd;
 }
 
 .category-bar button.active {
   background: #080706;
-
   color: #fff;
-
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -413,31 +311,46 @@ SERVICES
 
 .services {
   width: 90%;
-
-  margin: 50px auto;
+  margin: 60px auto;
 }
 
-.services h2 {
+
+/* =========================================================
+SERVICES HEADING
+MATCH SHOP BY CATEGORY
+========================================================= */
+
+.services .heading {
   text-align: center;
+  margin-bottom: 35px;
+}
 
+.services .heading .subtitle {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #0e0d0d;
+  margin-bottom: 8px;
+}
+
+.services .heading h2 {
   font-size: 36px;
-
-  margin-bottom: 30px;
+  color: #111;
+  margin: 0;
 }
 
 
 /* =========================================================
 SERVICES GRID
+MATCH SHOP BY CATEGORY GRID
 ========================================================= */
 
 .services-grid {
-  display: grid;
-
-  grid-template-columns: repeat(4, 1fr);
-
-  gap: 25px;
-
   width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+  align-items: stretch;
 }
 
 
@@ -447,15 +360,11 @@ SERVICE CARD
 
 .service-card {
   width: 100%;
-
+  height: 100%;
   background: #fff;
-
   border-radius: 18px;
-
   overflow: hidden;
-
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
@@ -463,7 +372,6 @@ SERVICE CARD
 
 .service-card:hover {
   transform: translateY(-8px);
-
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
 }
 
@@ -474,21 +382,15 @@ CARD IMAGE
 
 .card-image {
   position: relative;
-
   overflow: hidden;
-
   width: 100%;
 }
 
 .card-image img {
   width: 100%;
-
   height: 230px;
-
   object-fit: cover;
-
   display: block;
-
   transition: transform 0.4s ease;
 }
 
@@ -503,21 +405,13 @@ POPULAR BADGE
 
 .badge {
   position: absolute;
-
   top: 15px;
-
   left: 15px;
-
   background: #131110;
-
   color: #fff;
-
   padding: 6px 14px;
-
   border-radius: 20px;
-
   font-size: 13px;
-
   z-index: 3;
 }
 
@@ -528,41 +422,23 @@ LIKE / HEART BUTTON
 
 .like-button {
   position: absolute;
-
   top: 15px;
-
   right: 15px;
-
   width: 44px;
-
   height: 44px;
-
   border: none;
-
   border-radius: 50%;
-
   background: #fff;
-
   color: #222;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   font-size: 23px;
-
   cursor: pointer;
-
   z-index: 5;
-
   padding: 0;
-
   margin: 0;
-
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-
   transition:
     transform 0.2s ease,
     background 0.2s ease,
@@ -571,15 +447,12 @@ LIKE / HEART BUTTON
 
 .like-button:hover {
   transform: scale(1.1);
-
   background: #fff;
-
   color: #e53935;
 }
 
 .like-button.liked {
   color: #e53935;
-
   background: #fff;
 }
 
@@ -598,38 +471,37 @@ CARD CONTENT
 
 .card-content h3 {
   margin: 10px 0;
-
   color: #111;
-
   font-size: 22px;
 }
 
 .category {
   color: #555;
-
   font-size: 14px;
 }
 
 .rating {
   display: flex;
-
   align-items: center;
-
   gap: 8px;
-
   margin: 10px 0;
-
   color: #111;
-
   font-size: 14px;
 }
 
-.price {
-  font-size: 20px;
+.ask-price {
+  display: inline-block;
+  margin-top: 8px;
+  color: #111;
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
 
-  font-weight: bold;
-
-  color: #222;
+.ask-price:hover {
+  color: #555;
 }
 
 
@@ -639,23 +511,14 @@ VIEW DETAILS BUTTON
 
 .card-content button {
   width: 80%;
-
   margin-top: 15px;
-
   padding: 12px;
-
   border: none;
-
   border-radius: 10px;
-
   background: #080808;
-
   color: #fff;
-
   font-size: 15px;
-
   cursor: pointer;
-
   transition: 0.3s ease;
 }
 
@@ -665,20 +528,15 @@ VIEW DETAILS BUTTON
 
 
 /* =========================================================
-NO PRODUCTS MESSAGE
+NO SERVICES MESSAGE
 ========================================================= */
 
 .services-grid > p {
   width: 100%;
-
   grid-column: 1 / -1;
-
   text-align: center;
-
   padding: 40px;
-
   color: #666;
-
   font-size: 16px;
 }
 
@@ -695,7 +553,6 @@ TABLET
 
   .search-box {
     width: 380px;
-
     max-width: 45%;
   }
 
@@ -731,11 +588,8 @@ MOBILE
 
   .navbar-top {
     height: 50px;
-
     display: grid;
-
     grid-template-columns: auto 1fr auto;
-
     gap: 10px;
   }
 
@@ -745,39 +599,32 @@ MOBILE
 
   .logo img {
     width: 42px;
-
     height: 42px;
   }
 
   .search-box {
     width: 100%;
-
     max-width: none;
   }
 
   .search-box input {
     height: 34px;
-
     font-size: 11px;
-
     padding: 0 10px 0 35px;
   }
 
   .search-icon {
     left: 12px;
-
     font-size: 13px;
   }
 
   .nav-icons {
     position: static;
-
     gap: 9px;
   }
 
   .nav-icon {
     width: 17px;
-
     height: 17px;
   }
 
@@ -786,15 +633,10 @@ MOBILE
 
   .nav-links {
     height: 28px;
-
     padding-top: 5px;
-
     justify-content: flex-start;
-
     gap: 18px;
-
     overflow-x: auto;
-
     white-space: nowrap;
   }
 
@@ -822,15 +664,12 @@ MOBILE
 
   .category-bar {
     width: 94%;
-
     margin: 25px auto;
-
     gap: 10px;
   }
 
   .category-bar button {
     padding: 10px 18px;
-
     font-size: 14px;
   }
 
@@ -839,19 +678,20 @@ MOBILE
 
   .services {
     width: 94%;
-
-    margin: 35px auto;
+    margin: 60px auto;
+    
   }
 
-  .services h2 {
-    font-size: 28px;
+  .services .heading {
+    margin-bottom: 30px;
+  }
 
-    margin-bottom: 25px;
+  .services .heading h2 {
+    font-size: 28px;
   }
 
   .services-grid {
     grid-template-columns: 1fr;
-
     gap: 20px;
   }
 
@@ -871,23 +711,16 @@ MOBILE
 
   .like-button {
     width: 40px;
-
     height: 40px;
-
     top: 12px;
-
     right: 12px;
-
     font-size: 21px;
   }
 
   .badge {
     top: 12px;
-
     left: 12px;
-
     font-size: 12px;
-
     padding: 5px 12px;
   }
 }

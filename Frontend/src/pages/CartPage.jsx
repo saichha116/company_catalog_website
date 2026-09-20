@@ -1,345 +1,458 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./CartPage.css";
 
-function CartPage({
-  cart,
-  setCart,
-  searchTerm,
-  setSearchTerm
-}) {
+import "../pages/CartPage.css";
+
+function CartPage() {
   const navigate = useNavigate();
 
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   // ======================================
-  // LOAD CART FROM DATABASE
+  // GET LOGGED-IN USER
   // ======================================
+
+  const getUser = () => {
+    const savedUser = localStorage.getItem("user");
+
+    if (!savedUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(savedUser);
+    } catch (error) {
+      console.error("Invalid user data:", error);
+      return null;
+    }
+  };
+
+  const user = getUser();
+
+  // ======================================
+  // IMAGE URL
+  // ======================================
+
+  const getImageUrl = (image) => {
+    if (!image) {
+      return "/images/product-placeholder.jpg";
+    }
+
+    if (
+      image.startsWith("http://") ||
+      image.startsWith("https://")
+    ) {
+      return image;
+    }
+
+    return `http://localhost:5000/uploads/${image}`;
+  };
+
+  // ======================================
+  // GET ITEM NAME
+  // ======================================
+
+  const getItemName = (item) => {
+    if (item.type === "service") {
+      return item.service_name || item.name || "Service";
+    }
+
+    return item.product_name || item.name || "Product";
+  };
+
+  // ======================================
+  // GET ITEM IMAGE
+  // ======================================
+
+  const getItemImage = (item) => {
+    return getImageUrl(item.image);
+  };
+
+  // ======================================
+  // LOAD CART
+  // ======================================
+
+  const loadCart = async () => {
+    if (!user?.id) {
+      setCartItems([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/cart/${user.id}`
+      );
+
+      const data = await response.json();
+
+      console.log("Cart from database:", data);
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to load cart"
+        );
+      }
+
+      setCartItems(data);
+    } catch (error) {
+      console.error("Cart loading error:", error);
+      setCartItems([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/cart/1")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Cart from database:", data);
-
-        const formattedCart = data.map((item) => ({
-          id: item.product_id,
-          cart_item_id: item.cart_item_id,
-          name: item.product_name,
-          image: item.image,
-          quantity: item.quantity,
-          price: item.price,
-        }));
-
-        setCart(formattedCart);
-      })
-      .catch((error) => {
-        console.error("Unable to load cart:", error);
-      });
-  }, [setCart]);
+    loadCart();
+  }, [user?.id]);
 
   // ======================================
-  // SEARCH CART PRODUCTS
+  // UPDATE QUANTITY
   // ======================================
 
-  const filteredCart = cart.filter((item) =>
-    item.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
-
-  // ======================================
-  // INCREASE QUANTITY
-  // ======================================
-
-  const increaseQuantity = async (id) => {
-    const item = cart.find((item) => item.id === id);
-
-    if (!item) return;
-
-    const newQuantity = item.quantity + 1;
+  const updateQuantity = async (
+    cartItemId,
+    quantity
+  ) => {
+    if (quantity < 1) {
+      return;
+    }
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/cart/${item.cart_item_id}`,
+        `http://localhost:5000/api/cart/${cartItemId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            quantity: newQuantity,
+            quantity,
           }),
         }
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Unable to update quantity");
+        throw new Error(
+          data.message ||
+            "Failed to update quantity"
+        );
       }
 
-      setCart(
-        cart.map((item) =>
-          item.id === id
+      setCartItems((items) =>
+        items.map((item) =>
+          item.cart_item_id === cartItemId
             ? {
                 ...item,
-                quantity: newQuantity,
+                quantity: Number(quantity),
               }
             : item
         )
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Quantity update error:",
+        error
+      );
+
+      alert(
+        error.message ||
+          "Unable to update quantity."
+      );
     }
   };
 
   // ======================================
-  // DECREASE QUANTITY
+  // DELETE CART ITEM
   // ======================================
 
-  const decreaseQuantity = async (id) => {
-    const item = cart.find((item) => item.id === id);
-
-    if (!item || item.quantity <= 1) return;
-
-    const newQuantity = item.quantity - 1;
-
+  const removeFromCart = async (
+    cartItemId
+  ) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/cart/${item.cart_item_id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            quantity: newQuantity,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Unable to update quantity");
-      }
-
-      setCart(
-        cart.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                quantity: newQuantity,
-              }
-            : item
-        )
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // ======================================
-  // REMOVE PRODUCT
-  // ======================================
-
-  const removeItem = async (id) => {
-    const item = cart.find((item) => item.id === id);
-
-    if (!item) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/cart/${item.cart_item_id}`,
+        `http://localhost:5000/api/cart/${cartItemId}`,
         {
           method: "DELETE",
         }
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Unable to remove product");
+        throw new Error(
+          data.message ||
+            "Failed to remove item"
+        );
       }
 
-      setCart(
-        cart.filter((item) => item.id !== id)
+      setCartItems((items) =>
+        items.filter(
+          (item) =>
+            item.cart_item_id !== cartItemId
+        )
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Remove cart item error:",
+        error
+      );
+
+      alert(
+        error.message ||
+          "Unable to remove item."
+      );
     }
   };
 
   // ======================================
-  // CLEAR SEARCH
+  // LOADING
   // ======================================
 
-  const clearSearch = () => {
-    setSearchTerm("");
-  };
-
-  // ======================================
-  // PROCEED TO CHECKOUT
-  // ======================================
-
-  const proceedToCheckout = () => {
-    navigate("/checkout");
-  };
-
-  return (
-    <>
+  if (loading) {
+    return (
       <div className="cart-container">
-
-        {/* HEADING */}
 
         <div className="cart-heading">
           <h1>Shopping Cart</h1>
           <div className="heading-line"></div>
         </div>
 
-        {/* CART */}
+        <p>Loading cart...</p>
 
-        {cart.length > 0 ? (
+      </div>
+    );
+  }
 
-          <div className="cart-layout">
+  // ======================================
+  // EMPTY CART
+  // ======================================
 
-            <div className="cart-products">
+  if (cartItems.length === 0) {
+    return (
+      <div className="cart-container">
 
-              {/* SEARCH RESULTS */}
+        <div className="cart-heading">
+          <h1>Shopping Cart</h1>
+          <div className="heading-line"></div>
+        </div>
 
-              {filteredCart.length > 0 ? (
+        <div className="empty-cart">
 
-                filteredCart.map((item) => (
+          <h2>Your cart is empty</h2>
 
-                  <div
-                    className="cart-item"
-                    key={item.cart_item_id}
-                  >
+          <p>
+            Add your favorite products and
+            services to your cart.
+          </p>
 
-                    {/* PRODUCT IMAGE */}
+          <button
+            type="button"
+            onClick={() =>
+              navigate("/products")
+            }
+          >
+            Continue Shopping
+          </button>
 
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="cart-item-image"
-                    />
+        </div>
 
-                    {/* PRODUCT NAME */}
+      </div>
+    );
+  }
 
-                    <div className="cart-item-info">
-                      <h3>{item.name}</h3>
-                    </div>
+  // ======================================
+  // CART
+  // ======================================
 
-                    {/* QUANTITY */}
+  return (
+    <div className="cart-container">
 
-                    <div className="quantity-control">
+      {/* ==============================
+          HEADING
+      ============================== */}
 
-                      <button
-                        onClick={() =>
-                          decreaseQuantity(item.id)
-                        }
-                      >
-                        −
-                      </button>
+      <div className="cart-heading">
 
-                      <span>{item.quantity}</span>
+        <h1>Shopping Cart</h1>
 
-                      <button
-                        onClick={() =>
-                          increaseQuantity(item.id)
-                        }
-                      >
-                        +
-                      </button>
-
-                    </div>
-
-                    {/* DELETE */}
-
-                    <button
-                      className="delete-btn"
-                      onClick={() =>
-                        removeItem(item.id)
-                      }
-                    >
-                      🗑
-                    </button>
-
-                  </div>
-
-                ))
-
-              ) : (
-
-                /* NO SEARCH RESULT */
-
-                <div className="empty-cart">
-
-                  <h2>No products found</h2>
-
-                  <p>
-                    No cart product matches "{searchTerm}".
-                  </p>
-
-                  <button onClick={clearSearch}>
-                    Clear Search
-                  </button>
-
-                </div>
-
-              )}
-
-              {/* BUTTONS */}
-
-              {filteredCart.length > 0 && (
-
-                <div className="cart-buttons">
-
-                  {/* PROCEED TO CHECKOUT */}
-
-                  <button
-                    className="checkout-btn"
-                    onClick={proceedToCheckout}
-                  >
-                    Proceed To Checkout
-                  </button>
-
-                  {/* CONTINUE SHOPPING */}
-
-                  <button
-                    className="continue-btn"
-                    onClick={() => navigate("/")}
-                  >
-                    Continue Shopping
-                  </button>
-
-                </div>
-
-              )}
-
-            </div>
-
-          </div>
-
-        ) : (
-
-          /* EMPTY CART */
-
-          <div className="empty-cart">
-
-            <h2>Your cart is empty</h2>
-
-            <p>
-              Add products to your cart to see them here.
-            </p>
-
-            <button
-              onClick={() => navigate("/")}
-            >
-              Continue Shopping
-            </button>
-
-          </div>
-
-        )}
+        <div className="heading-line"></div>
 
       </div>
 
-      
-    </>
+
+      {/* ==============================
+          CART LAYOUT
+      ============================== */}
+
+      <div className="cart-layout">
+
+        <div className="cart-products">
+
+          {cartItems.map((item) => {
+
+            const isService =
+              item.type === "service";
+
+            const itemName =
+              getItemName(item);
+
+            const itemImage =
+              getItemImage(item);
+
+            return (
+              <div
+                className="cart-item"
+                key={item.cart_item_id}
+              >
+
+                {/* ==========================
+                    IMAGE
+                ========================== */}
+
+                <img
+                  className="cart-item-image"
+                  src={itemImage}
+                  alt={itemName}
+                  onError={(e) => {
+
+                    console.error(
+                      "Image failed to load:",
+                      e.currentTarget.src
+                    );
+
+                    e.currentTarget.src =
+                      "/images/product-placeholder.jpg";
+
+                  }}
+                />
+
+
+                {/* ==========================
+                    ITEM INFO
+                ========================== */}
+
+                <div className="cart-item-info">
+
+                  <p className="cart-item-type">
+                    {isService
+                      ? "SERVICE"
+                      : "PRODUCT"}
+                  </p>
+
+                  <h3>
+                    {itemName}
+                  </h3>
+
+                </div>
+
+
+                {/* ==========================
+                    QUANTITY
+                ========================== */}
+
+                <div className="quantity-control">
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateQuantity(
+                        item.cart_item_id,
+                        Number(item.quantity) - 1
+                      )
+                    }
+                    disabled={
+                      Number(item.quantity) <= 1
+                    }
+                  >
+                    −
+                  </button>
+
+                  <span>
+                    {item.quantity}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateQuantity(
+                        item.cart_item_id,
+                        Number(item.quantity) + 1
+                      )
+                    }
+                    disabled={
+                      !isService &&
+                      Number(item.quantity) >=
+                        Number(item.stock)
+                    }
+                  >
+                    +
+                  </button>
+
+                </div>
+
+
+                {/* ==========================
+                    DELETE
+                ========================== */}
+
+                <button
+                  type="button"
+                  className="delete-btn"
+                  onClick={() =>
+                    removeFromCart(
+                      item.cart_item_id
+                    )
+                  }
+                  aria-label="Remove from cart"
+                  title="Remove from cart"
+                >
+                  🗑
+                </button>
+
+              </div>
+            );
+
+          })}
+
+        </div>
+
+      </div>
+
+
+      {/* ==============================
+          CART BUTTONS
+      ============================== */}
+
+      <div className="cart-buttons">
+
+        <button
+          type="button"
+          className="checkout-btn"
+          onClick={() =>
+            navigate("/checkout")
+          }
+        >
+          CHECKOUT
+        </button>
+
+        <button
+          type="button"
+          className="continue-btn"
+          onClick={() =>
+            navigate("/products")
+          }
+        >
+          CONTINUE SHOPPING
+        </button>
+
+      </div>
+
+    </div>
   );
 }
 

@@ -1,64 +1,80 @@
+
 import "./Categories.css";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function Categories() {
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
 
-  const categories = [
-    {
-      title: "Sign Boards",
-      className: "category-1",
-    },
-    {
-      title: "Signage Materials",
-      className: "category-2",
-    },
-    {
-      title: "Stationery",
-      className: "category-3",
-    },
-    {
-      title: "Cleaning Supplies",
-      className: "category-4",
-    },
-  ];
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/categories")
+      .then((res) => {
+        console.log("Categories from database:", res.data);
+
+        // Show ONLY product categories
+        const productCategories = res.data.filter(
+          (category) =>
+            String(category.main_category_id) === "1"
+        );
+
+        setCategories(productCategories);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch categories:", err);
+      });
+  }, []);
 
   return (
     <section className="categories">
-
       <div className="heading">
-        <p className="subtitle">BROWSE</p>
-        <h2>Shop by Category</h2>
+        <h2>OUR PRODUCTS</h2>
       </div>
 
       <div className="category-container">
+        {categories.length > 0 ? (
+          categories.map((category) => (
+            <div
+              key={category.category_id}
+              className="category-card"
+              onClick={() =>
+                navigate(
+                  `/products?category=${encodeURIComponent(
+                    category.category_name
+                  )}`
+                )
+              }
+            >
+              {category.category_image ? (
+                <img
+                  src={`http://localhost:5000/uploads/${category.category_image}`}
+                  alt={category.category_name}
+                  className="category-image"
+                />
+              ) : (
+                <div className="category-no-image">
+                  No Image
+                </div>
+              )}
 
-        {categories.map((item) => (
-          <div
-            key={item.title}
-            className={`category-card ${item.className}`}
-            onClick={() =>
-              navigate(
-                `/products?category=${encodeURIComponent(
-                  item.title
-                )}`
-              )
-            }
-          >
-            <div className="category-overlay">
-              <h3>{item.title}</h3>
-
-              <span>
-                Explore Products →
-              </span>
+              <div className="category-overlay">
+                <h3>{category.category_name}</h3>
+                <span>Explore Products →</span>
+              </div>
             </div>
-          </div>
-        ))}
-
+          ))
+        ) : (
+          <p className="no-categories">
+            No product categories found.
+          </p>
+        )}
       </div>
-
     </section>
   );
 }
 
 export default Categories;
+
+

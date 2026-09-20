@@ -28,13 +28,12 @@
 .dropdown-wrapper > button {
 
   height: 44px;
-  
-
+  width:200px;
   padding : 12 px;
 
-  background: #ffffff;
+  background: #000000;
 
-  color: #222222;
+  color: #fffefe;
 
   border: none;
 
@@ -67,7 +66,7 @@
 
    transform: translateY(-3px);
 
-  background: #ddd;
+  background: #000000;
 
 }
 
@@ -221,6 +220,7 @@
   .dropdown-wrapper > button {
 
     height: 40px;
+  
 
     padding: 0 12px;
 

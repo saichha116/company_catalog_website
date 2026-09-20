@@ -1,6 +1,7 @@
+
 .services {
   width: 100%;
-  padding: 60px 40px;
+  padding: 60px 1px;
 }
 
 .services .heading {
@@ -9,10 +10,10 @@
 }
 
 .services .subtitle {
-  font-size: 14px;
+  font-size: 24px;
   font-weight: 600;
   letter-spacing: 2px;
-  color: #777;
+  color: #000000;
   margin-bottom: 8px;
 }
 
@@ -39,11 +40,28 @@
   transform: translateY(-6px);
 }
 
+/* Service category image */
+.service-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  border-radius: 12px;
+}
+
+/* When a category has no image */
 .image-placeholder {
   width: 100%;
   height: 220px;
   background: #e6e6e6;
   border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #666;
+  font-size: 16px;
 }
 
 .service-card h3 {
@@ -55,7 +73,7 @@
 /* Tablet */
 @media (max-width: 900px) {
   .services {
-    padding: 50px 25px;
+    padding: 50px 1px;
   }
 
   .service-container {
@@ -70,7 +88,7 @@
 /* Mobile */
 @media (max-width: 600px) {
   .services {
-    padding: 40px 20px;
+    padding: 40px 1px;
   }
 
   .services .heading h2 {
@@ -85,6 +103,7 @@
     width: 100%;
   }
 
+  .service-image,
   .image-placeholder {
     height: 200px;
   }

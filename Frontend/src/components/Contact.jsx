@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import "./Contact.css";
 
@@ -30,32 +29,35 @@ function Contact() {
 
     try {
       const response = await fetch(
-     "http://localhost:5000/api/feedback",
+        "http://localhost:5000/api/feedback",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            ...formData,
+            rating: Number(formData.rating),
+          }),
         }
       );
 
       const data = await response.json();
 
       if (data.success) {
-  setMessage("✅ Feedback submitted successfully!");
+        setMessage("✅ Feedback submitted successfully!");
 
-  setFormData({
-    full_name: "",
-    email: "",
-    rating: "",
-    feedback: "",
-  });
+        setFormData({
+          full_name: "",
+          email: "",
+          rating: "",
+          feedback: "",
+        });
 
-  setTimeout(() => {
-    setMessage("");
-  }, 5000);
-} else {
+        setTimeout(() => {
+          setMessage("");
+        }, 5000);
+      } else {
         setMessage(
           data.message || "Something went wrong."
         );
@@ -77,7 +79,6 @@ function Contact() {
       {/* ================= HERO SECTION ================= */}
 
       <div className="contact-hero">
-
         <div className="contact-hero-content">
 
           <span className="contact-small-title">
@@ -94,7 +95,6 @@ function Contact() {
           </p>
 
         </div>
-
       </div>
 
 
@@ -131,7 +131,6 @@ function Contact() {
             </div>
 
             <div>
-
               <h3>
                 Our Address
               </h3>
@@ -141,7 +140,6 @@ function Contact() {
                 <br />
                 403401
               </p>
-
             </div>
 
           </div>
@@ -156,7 +154,6 @@ function Contact() {
             </div>
 
             <div>
-
               <h3>
                 Call Us
               </h3>
@@ -164,7 +161,6 @@ function Contact() {
               <p>
                 +91 8806453029
               </p>
-
             </div>
 
           </div>
@@ -179,7 +175,6 @@ function Contact() {
             </div>
 
             <div>
-
               <h3>
                 Email Us
               </h3>
@@ -187,7 +182,6 @@ function Contact() {
               <p>
                 inquiry@imscad.co.in
               </p>
-
             </div>
 
           </div>
@@ -198,7 +192,6 @@ function Contact() {
         {/* ================= FEEDBACK SECTION ================= */}
 
         <div className="contact-form-section">
-
 
           {/* ================= LEFT SIDE ================= */}
 
@@ -256,11 +249,9 @@ function Contact() {
 
             <form onSubmit={handleSubmit}>
 
-
               {/* NAME + EMAIL */}
 
               <div className="form-row">
-
 
                 {/* NAME */}
 
@@ -314,7 +305,6 @@ function Contact() {
 
                 <div className="feedback-rating">
 
-
                   {/* POOR */}
 
                   <label className="rating-option">
@@ -322,9 +312,9 @@ function Contact() {
                     <input
                       type="radio"
                       name="rating"
-                      value="poor"
+                      value="1"
                       checked={
-                        formData.rating === "poor"
+                        formData.rating === "1"
                       }
                       onChange={handleChange}
                       required
@@ -348,9 +338,9 @@ function Contact() {
                     <input
                       type="radio"
                       name="rating"
-                      value="average"
+                      value="2"
                       checked={
-                        formData.rating === "average"
+                        formData.rating === "2"
                       }
                       onChange={handleChange}
                     />
@@ -373,9 +363,9 @@ function Contact() {
                     <input
                       type="radio"
                       name="rating"
-                      value="good"
+                      value="3"
                       checked={
-                        formData.rating === "good"
+                        formData.rating === "3"
                       }
                       onChange={handleChange}
                     />
@@ -398,9 +388,9 @@ function Contact() {
                     <input
                       type="radio"
                       name="rating"
-                      value="excellent"
+                      value="4"
                       checked={
-                        formData.rating === "excellent"
+                        formData.rating === "4"
                       }
                       onChange={handleChange}
                     />
@@ -458,7 +448,6 @@ function Contact() {
                 )}
 
               </button>
-
 
             </form>
 

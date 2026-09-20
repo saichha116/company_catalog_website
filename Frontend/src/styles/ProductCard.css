@@ -3,7 +3,7 @@
 ========================= */
 
 .card {
-  width: 100%;
+  width: 300px;
   background: #ffffff;
   border-radius: 12px;
   overflow: hidden;
@@ -59,14 +59,20 @@
    PRICE
 ========================= */
 
-.card .price {
-  margin: 8px 15px;
-  font-size: 19px;
-  font-weight: bold;
-  color: #000;
+.ask-price {
+  display: inline-block;
+  margin: 8px 0;
+  color: #111;
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
-
+.ask-price:hover {
+  color: #555;
+}
 /* =========================
    STOCK
 ========================= */
@@ -84,10 +90,11 @@
 
 .card button:not(.like-button) {
   display: block;
-  width: 80%;
+  margin: 0 auto; 
+  width: 250px;
   margin-top: 15px ;
   padding: 12 px;
-
+   height:50px;
   background: #000000;
   color: #ffffff;
 
@@ -100,6 +107,7 @@
   cursor: pointer;
 
   transition: background 0.3s ease, transform 0.2s ease;
+  
 }
 
 .card button:not(.like-button):hover {

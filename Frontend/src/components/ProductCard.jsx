@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+
 import "../styles/ProductCard.css";
 
 function ProductCard({
@@ -17,7 +18,6 @@ function ProductCard({
   const productImage = product.image
     ? `http://localhost:5000/uploads/${product.image}`
     : null;
-
 
   // =========================
   // GET LOGGED-IN USER
@@ -40,7 +40,6 @@ function ProductCard({
 
   const user = getUser();
 
-
   // =========================
   // CHECK IF PRODUCT IS LIKED
   // =========================
@@ -50,7 +49,6 @@ function ProductCard({
       Number(item.id) === Number(productId) &&
       item.type === "product"
   );
-
 
   // =========================
   // LOAD WISHLIST FROM DATABASE
@@ -75,19 +73,18 @@ function ProductCard({
       setWishlist(data);
 
       return data;
-
     } catch (error) {
       console.error("Error loading wishlist:", error);
       return [];
     }
   };
 
-
   // =========================
   // TOGGLE WISHLIST
   // =========================
 
-  const toggleWishlist = async () => {
+  const toggleWishlist = async (e) => {
+    e.stopPropagation();
 
     // User must be logged in
     if (!user || !user.id) {
@@ -98,22 +95,18 @@ function ProductCard({
     const userId = user.id;
 
     try {
-
       // =================================================
       // REMOVE FROM WISHLIST
       // =================================================
 
       if (isLiked) {
-
         const response = await fetch(
           "http://localhost:5000/api/wishlist",
           {
             method: "DELETE",
-
             headers: {
               "Content-Type": "application/json",
             },
-
             body: JSON.stringify({
               user_id: userId,
               item_id: productId,
@@ -127,10 +120,9 @@ function ProductCard({
         if (!response.ok) {
           throw new Error(
             data.message ||
-            "Failed to remove wishlist item"
+              "Failed to remove wishlist item"
           );
         }
-
 
         // Update React state
         setWishlist(
@@ -148,7 +140,6 @@ function ProductCard({
         return;
       }
 
-
       // =================================================
       // ADD TO WISHLIST
       // =================================================
@@ -157,11 +148,9 @@ function ProductCard({
         "http://localhost:5000/api/wishlist",
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
             user_id: userId,
             item_id: productId,
@@ -172,13 +161,11 @@ function ProductCard({
 
       const data = await response.json();
 
-
       // =================================================
       // ITEM ALREADY EXISTS
       // =================================================
 
       if (response.status === 409) {
-
         console.log(
           "Product already exists. Synchronizing wishlist..."
         );
@@ -192,12 +179,13 @@ function ProductCard({
         );
 
         if (alreadyExists) {
-          alert(`${productName} is already in your wishlist.`);
+          alert(
+            `${productName} is already in your wishlist.`
+          );
         }
 
         return;
       }
-
 
       // =================================================
       // OTHER ERROR
@@ -206,10 +194,9 @@ function ProductCard({
       if (!response.ok) {
         throw new Error(
           data.message ||
-          "Failed to add wishlist item"
+            "Failed to add wishlist item"
         );
       }
-
 
       // =================================================
       // SUCCESS
@@ -219,40 +206,28 @@ function ProductCard({
         ...wishlist,
         {
           wishlist_id: data.wishlist_id,
-
           id: productId,
-
           name: productName,
-
           title: productName,
-
           description: product.description,
-
           image: productImage,
-
           min_price: product.min_price,
-
           max_price: product.max_price,
-
           stock: product.stock,
-
           type: "product",
         },
       ]);
 
       alert(`${productName} added to wishlist!`);
-
     } catch (error) {
-
       console.error("Wishlist error:", error);
 
       alert(
         error.message ||
-        "Something went wrong with wishlist."
+          "Something went wrong with wishlist."
       );
     }
   };
-
 
   return (
     <div className="card">
@@ -276,7 +251,6 @@ function ProductCard({
         {isLiked ? "♥" : "♡"}
       </button>
 
-
       {/* =========================
           PRODUCT IMAGE
       ========================= */}
@@ -297,7 +271,6 @@ function ProductCard({
         )}
       </Link>
 
-
       {/* =========================
           PRODUCT NAME
       ========================= */}
@@ -309,18 +282,21 @@ function ProductCard({
         <h3>{productName}</h3>
       </Link>
 
-
       {/* =========================
-          PRICE
+          ASK FOR PRICE
       ========================= */}
 
-      <p className="price">
-        ₹{product.min_price}
-
-        {product.max_price &&
-          ` - ₹${product.max_price}`}
-      </p>
-
+      <a
+        href={`https://wa.me/919422588241?text=${encodeURIComponent(
+          `Hello, I would like to ask for the price of ${productName}.`
+        )}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="ask-price"
+        onClick={(e) => e.stopPropagation()}
+      >
+        Ask for Price
+      </a>
 
       {/* =========================
           STOCK
@@ -331,7 +307,6 @@ function ProductCard({
           ? `In Stock: ${product.stock}`
           : "Out of Stock"}
       </p>
-
 
       {/* =========================
           ADD TO CART

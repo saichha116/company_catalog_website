@@ -923,3 +923,26 @@ MOBILE
   }
 
 }
+/* =========================================================
+   FEEDBACK MESSAGE
+========================================================= */
+
+.feedback-message {
+  margin: 20px 0 0;
+
+  padding: 12px 15px;
+
+  border-radius: 8px;
+
+  background: #f5f5f5;
+
+  color: #333333;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+
+  text-align: left;
+
+  border: 1px solid #dddddd;
+}
