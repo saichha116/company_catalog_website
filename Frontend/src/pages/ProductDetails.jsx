@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import "../styles/ProductDetails.css";
 
 function ProductDetails({
-  cart,
+  cart = [],
   setCart,
-  wishlist,
+  wishlist = [],
   setWishlist,
 }) {
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
@@ -250,23 +252,11 @@ function ProductDetails({
   // =========================
 
   const handleAddToCart = async () => {
-    console.log(
-      "🔥 PRODUCT DETAILS ADD TO CART CLICKED"
-    );
-     console.log("🚨🚨 HANDLE ADD TO CART RUNNING 🚨🚨");
-
-    const savedUser =
-      localStorage.getItem("user");
-
-    console.log(
-      "USER FROM LOCAL STORAGE:",
-      savedUser
-    );
+    const savedUser = localStorage.getItem("user");
 
     if (!savedUser) {
-      alert(
-        "Please login to add products to cart."
-      );
+      toast.info("Please login to add products to your cart.");
+      setTimeout(() => navigate("/login"), 1000);
       return;
     }
 
@@ -275,86 +265,35 @@ function ProductDetails({
     try {
       currentUser = JSON.parse(savedUser);
     } catch (error) {
-      console.error(
-        "USER JSON ERROR:",
-        error
-      );
-
-      alert(
-        "Invalid login information."
-      );
-
+      console.error("USER JSON ERROR:", error);
+      toast.error("Invalid login session. Please login again.");
       return;
     }
 
-    console.log(
-      "CURRENT USER:",
-      currentUser
-    );
+    const userId = currentUser?.id || currentUser?.user_id;
 
-    console.log(
-      "USER ID:",
-      currentUser.id
-    );
-
-    console.log(
-      "PRODUCT:",
-      product
-    );
-
-    console.log(
-      "PRODUCT ID:",
-      product.product_id
-    );
-
-    console.log(
-      "QUANTITY:",
-      quantity
-    );
-
-    if (!currentUser?.id) {
-      alert(
-        "User ID not found. Please login again."
-      );
-
+    if (!userId) {
+      toast.info("Please login to add products to your cart.");
+      setTimeout(() => navigate("/login"), 1000);
       return;
     }
 
     if (!product?.product_id) {
-      alert(
-        "Product ID not found."
-      );
-
+      toast.error("Product information not found.");
       return;
     }
 
     if (Number(product.stock) <= 0) {
-      alert(
-        "This product is out of stock."
-      );
-
+      toast.warning("This product is currently out of stock.");
       return;
     }
 
     try {
-      // =========================
-      // REQUEST BODY
-      // =========================
-
       const requestBody = {
-        user_id: Number(currentUser.id),
+        user_id: Number(userId),
         product_id: Number(product.product_id),
-        quantity: Number(quantity),
+        quantity: Number(quantity) || 1,
       };
-
-      console.log(
-        "SENDING TO CART API:",
-        requestBody
-      );
-
-      // =========================
-      // SEND TO BACKEND
-      // =========================
 
       const response = await fetch(
         "http://localhost:5000/api/cart",
@@ -363,111 +302,60 @@ function ProductDetails({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(
-            requestBody
-          ),
+          body: JSON.stringify(requestBody),
         }
       );
 
-      const responseText =
-        await response.text();
-
-      console.log(
-        "CART API STATUS:",
-        response.status
-      );
-
-      console.log(
-        "CART API RESPONSE:",
-        responseText
-      );
-
-      let data;
-
-      try {
-        data = JSON.parse(
-          responseText
-        );
-      } catch (error) {
-        console.error(
-          "CART RESPONSE IS NOT JSON:",
-          responseText
-        );
-
-        throw new Error(
-          "Server returned an invalid response."
-        );
-      }
-
-      // =========================
-      // API ERROR
-      // =========================
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Unable to add product to cart"
+          data.message || "Unable to add product to cart"
         );
       }
 
-      console.log(
-        "PRODUCT SUCCESSFULLY ADDED:",
-        data
-      );
+      // Safe update of React state if setCart was passed
+      if (typeof setCart === "function") {
+        setCart((prevCart = []) => {
+          const list = Array.isArray(prevCart) ? prevCart : [];
+          const existingProduct = list.find(
+            (item) =>
+              Number(item.product_id || item.id) === Number(productId)
+          );
 
-      // =========================
-      // UPDATE FRONTEND CART
-      // =========================
+          if (existingProduct) {
+            return list.map((item) =>
+              Number(item.product_id || item.id) === Number(productId)
+                ? {
+                    ...item,
+                    quantity:
+                      Number(item.quantity || 0) + Number(quantity),
+                  }
+                : item
+            );
+          }
 
-      const existingProduct =
-        cart.find(
-          (item) =>
-            Number(
-              item.product_id || item.id
-            ) === Number(productId)
-        );
-
-      if (existingProduct) {
-        setCart(
-          cart.map((item) =>
-            Number(
-              item.product_id || item.id
-            ) === Number(productId)
-              ? {
-                  ...item,
-                  quantity:
-                    Number(
-                      item.quantity || 0
-                    ) +
-                    Number(quantity),
-                }
-              : item
-          )
-        );
-      } else {
-        setCart([
-          ...cart,
-          {
-            ...product,
-            id: productId,
-            name: productName,
-            quantity: Number(quantity),
-          },
-        ]);
+          return [
+            ...list,
+            {
+              ...product,
+              id: productId,
+              name: productName,
+              quantity: Number(quantity),
+            },
+          ];
+        });
       }
 
-      alert(
-        `${productName} (${quantity}) added to cart!`
-      );
+      // Notify Navbar and other listeners
+      window.dispatchEvent(new Event("cart-change"));
+
+      toast.success(`🎉 ${productName} (${quantity}) added to cart!`);
     } catch (error) {
-      console.error(
-        "ADD TO CART ERROR:",
-        error
-      );
+      console.error("ADD TO CART ERROR:", error);
 
-      alert(
-        error.message ||
-          "Unable to add product to cart."
+      toast.error(
+        error.message || "Unable to add product to cart."
       );
     }
   };
@@ -543,16 +431,6 @@ function ProductDetails({
               </p>
             )}
 
-            {/* ASK FOR PRICE */}
-
-            <button
-              type="button"
-              className="product-ask-price-button"
-              onClick={askForPrice}
-            >
-              Ask for Price
-            </button>
-
             {/* DESCRIPTION */}
 
             <div className="product-details-description">
@@ -580,6 +458,18 @@ function ProductDetails({
                 </p>
               )}
 
+            </div>
+
+            {/* ASK FOR PRICE */}
+
+            <div className="product-ask-price-section">
+              <button
+                type="button"
+                className="product-ask-price-button"
+                onClick={askForPrice}
+              >
+                Ask for Price
+              </button>
             </div>
 
             {/* QUANTITY */}
@@ -665,43 +555,6 @@ function ProductDetails({
                   ? "♥ Wishlisted"
                   : "♡ Wishlist"}
               </button>
-
-            </div>
-
-            {/* PRODUCT DETAILS */}
-
-            <div className="product-extra-details">
-
-              <h3>
-                Product Details
-              </h3>
-
-              <ul>
-
-                <li>
-                  Category:{" "}
-                  {product.category_name ||
-                    "Product"}
-                </li>
-
-                {product.subcategory_name && (
-                  <li>
-                    Subcategory:{" "}
-                    {product.subcategory_name}
-                  </li>
-                )}
-
-                <li>
-                  Product ID: {productId}
-                </li>
-
-                <li>
-                  {Number(product.stock) > 0
-                    ? `Available stock: ${product.stock}`
-                    : "Currently out of stock"}
-                </li>
-
-              </ul>
 
             </div>
 

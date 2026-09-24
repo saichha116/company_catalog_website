@@ -19,6 +19,7 @@ function HeroSlider() {
       navigation
       pagination={{ clickable: true }}
       loop={true}
+      className="hero-swiper"
     >
       <SwiperSlide>
         <img src={slider1} alt="Slide 1" />

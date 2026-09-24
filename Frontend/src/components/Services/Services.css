@@ -1,110 +1,195 @@
+/* =========================
+   OUR SERVICES SECTION (HOME PAGE)
+========================= */
 
-.services {
-  width: 100%;
-  padding: 60px 1px;
+.home-services {
+  width: 90%;
+  margin: 60px auto;
 }
 
-.services .heading {
+/* =========================
+   SERVICES HEADING
+========================= */
+
+.home-services .heading {
   text-align: center;
   margin-bottom: 35px;
 }
 
-.services .subtitle {
-  font-size: 24px;
+.home-services .heading .subtitle {
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 2px;
-  color: #000000;
+  color: #777;
   margin-bottom: 8px;
 }
 
-.services .heading h2 {
+.home-services .heading h2 {
   font-size: 36px;
   color: #111;
+  margin: 0;
 }
 
-.service-container {
+/* =========================
+   SERVICES CONTAINER
+========================= */
+
+.home-services .home-service-container {
   width: 100%;
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 25px;
 }
 
-.service-card {
-  flex: 1;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
+/* =========================
+   SERVICE CARD (HOME CATEGORY CARD)
+========================= */
 
-.service-card:hover {
-  transform: translateY(-6px);
-}
-
-/* Service category image */
-.service-image {
+.home-services .home-service-card {
+  position: relative;
   width: 100%;
-  height: 220px;
+  height: 230px;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* =========================
+   HOVER
+========================= */
+
+.home-services .home-service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* =========================
+   SERVICE IMAGE
+========================= */
+
+.home-services .home-service-image {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
-  border-radius: 12px;
+  transition: transform 0.4s ease;
 }
 
-/* When a category has no image */
-.image-placeholder {
-  width: 100%;
-  height: 220px;
-  background: #e6e6e6;
-  border-radius: 12px;
+/* =========================
+   IMAGE ZOOM ON HOVER
+========================= */
 
+.home-services .home-service-card:hover .home-service-image {
+  transform: scale(1.05);
+}
+
+/* =========================
+   NO IMAGE
+========================= */
+
+.home-services .home-service-no-image {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  color: #666;
+  background: #eeeeee;
+  color: #777;
   font-size: 16px;
 }
 
-.service-card h3 {
-  margin-top: 12px;
-  font-size: 20px;
-  color: #000;
+/* =========================
+   SERVICE OVERLAY
+========================= */
+
+.home-services .home-service-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 25px;
+  background: linear-gradient(
+    transparent,
+    rgba(0, 0, 0, 0.85)
+  );
+  color: white;
+  box-sizing: border-box;
 }
 
-/* Tablet */
-@media (max-width: 900px) {
-  .services {
-    padding: 50px 1px;
+/* =========================
+   SERVICE TITLE
+========================= */
+
+.home-services .home-service-overlay h3 {
+  margin: 0 0 8px;
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* =========================
+   EXPLORE TEXT
+========================= */
+
+.home-services .home-service-overlay span {
+  color: #eeeeee;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* =========================
+   NO SERVICES
+========================= */
+
+.home-services .no-services {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #777;
+  font-size: 16px;
+  padding: 30px 0;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1000px) {
+  .home-services {
+    width: 92%;
   }
 
-  .service-container {
-    flex-wrap: wrap;
-  }
-
-  .service-card {
-    flex: 0 0 calc(50% - 13px);
+  .home-services .home-service-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 }
 
-/* Mobile */
-@media (max-width: 600px) {
-  .services {
-    padding: 40px 1px;
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+  .home-services {
+    width: 94%;
+    margin: 45px auto;
   }
 
-  .services .heading h2 {
-    font-size: 28px;
+  .home-services .home-service-container {
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
 
-  .service-container {
-    flex-direction: column;
-  }
-
-  .service-card {
-    width: 100%;
-  }
-
-  .service-image,
-  .image-placeholder {
+  .home-services .home-service-card {
     height: 200px;
+  }
+
+  .home-services .heading h2 {
+    font-size: 28px;
   }
 }

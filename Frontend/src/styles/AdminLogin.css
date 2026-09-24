@@ -1,0 +1,283 @@
+/* ================================
+   ADMIN LOGIN - DESKTOP
+================================ */
+
+.admin-login-container {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Replace solid color with image */
+    background: url(".jpg") no-repeat center center fixed;
+    background-size: cover;
+
+    padding: 40px;
+    box-sizing: border-box;
+}
+/* Main Login Card */
+
+.admin-login-card {
+    width: 100%;
+    max-width: 500px;
+    background: #ffffff;
+    padding: 50px 55px;
+    border-radius: 18px;
+    box-sizing: border-box;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+/* Lock Icon */
+
+.admin-icon {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 20px;
+
+    border-radius: 50%;
+    background: #111111;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #ffffff;
+    font-size: 28px;
+}
+
+/* Heading */
+
+.admin-login-card h1 {
+    margin: 0;
+    text-align: center;
+
+    font-size: 38px;
+    font-weight: 700;
+
+    color: #111111;
+}
+
+/* Subtitle */
+
+.admin-login-card p {
+    margin: 8px 0 38px;
+
+    text-align: center;
+
+    font-size: 16px;
+    color: #666666;
+}
+
+/* Input Group */
+
+.admin-input-group {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.admin-input-group label {
+    display: block;
+    text-align: left;
+
+    margin-bottom: 8px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    color: #222222;
+}
+
+/* Inputs */
+
+.admin-input-group input {
+    width: 100%;
+    height: 52px;
+
+    padding: 0 16px;
+
+    border: 1px solid #d5d5d5;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #222222;
+
+    font-size: 15px;
+
+    outline: none;
+
+    box-sizing: border-box;
+}
+
+.admin-input-group input::placeholder {
+    color: #999999;
+}
+
+.admin-input-group input:focus {
+    border-color: #111111;
+
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Password */
+
+.admin-password-field {
+    position: relative;
+    width: 100%;
+}
+
+.admin-password-field input {
+    padding-right: 50px;
+}
+
+/* Eye Button */
+
+.admin-eye-btn {
+    position: absolute;
+
+    right: 12px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    background: transparent;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    color: #666666;
+
+    font-size: 17px;
+}
+
+.admin-eye-btn:hover {
+    color: #111111;
+}
+
+/* Admin Login Button */
+
+.admin-login-btn {
+    width: 100%;
+    height: 54px;
+
+    margin-top: 5px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #111111;
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.admin-login-btn:hover {
+    background: #3d3d3d;
+    transform: translateY(-1px);
+}
+
+.admin-login-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Back to User Login */
+
+.back-user-login {
+    display: block;
+
+    margin: 22px auto 0;
+
+    border: none;
+    background: transparent;
+
+    color: #222222;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.back-user-login:hover {
+    text-decoration: underline;
+}
+
+/* ================================
+   DESKTOP
+================================ */
+
+@media (min-width: 1024px) {
+
+    .admin-login-container {
+        padding: 60px;
+    }
+
+    .admin-login-card {
+        max-width: 520px;
+        padding: 55px 60px;
+    }
+
+    .admin-login-card h1 {
+        font-size: 40px;
+    }
+
+    .admin-input-group input {
+        height: 54px;
+    }
+
+    .admin-login-btn {
+        height: 56px;
+    }
+}
+
+/* ================================
+   LAPTOP
+================================ */
+
+@media (max-width: 900px) {
+
+    .admin-login-container {
+        padding: 30px;
+    }
+
+    .admin-login-card {
+        max-width: 480px;
+    }
+}
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 600px) {
+
+    .admin-login-container {
+        padding: 20px;
+    }
+
+    .admin-login-card {
+        padding: 35px 25px;
+    }
+
+    .admin-login-card h1 {
+        font-size: 30px;
+    }
+
+    .admin-login-card p {
+        font-size: 14px;
+    }
+}

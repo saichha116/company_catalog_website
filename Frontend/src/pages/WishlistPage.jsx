@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "../styles/WishlistPage.css";
 
 function WishlistPage({ wishlist, setWishlist }) {
@@ -21,11 +22,27 @@ function WishlistPage({ wishlist, setWishlist }) {
     }
   };
 
-  const user = getUser();
+  const [user, setUser] = useState(getUser());
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setUser(getUser());
+    };
+
+    window.addEventListener("auth-change", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("auth-change", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
+  }, []);
+
+  const userId = user?.id || user?.user_id;
 
   useEffect(() => {
     const loadWishlist = async () => {
-      if (!user?.id) {
+      if (!userId) {
         setWishlist([]);
         setLoading(false);
         return;
@@ -33,7 +50,7 @@ function WishlistPage({ wishlist, setWishlist }) {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/wishlist/${user.id}`
+          `http://localhost:5000/api/wishlist/${userId}`
         );
 
         if (!response.ok) {
@@ -44,7 +61,7 @@ function WishlistPage({ wishlist, setWishlist }) {
 
         console.log("Wishlist from database:", data);
 
-        setWishlist(data);
+        setWishlist(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error loading wishlist:", error);
         setWishlist([]);
@@ -54,10 +71,10 @@ function WishlistPage({ wishlist, setWishlist }) {
     };
 
     loadWishlist();
-  }, [user?.id, setWishlist]);
+  }, [userId, setWishlist]);
 
   const removeFromWishlist = async (id, type) => {
-    if (!user?.id) {
+    if (!userId) {
       return;
     }
 
@@ -70,7 +87,7 @@ function WishlistPage({ wishlist, setWishlist }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            user_id: user.id,
+            user_id: Number(userId),
             item_id: id,
             item_type: type,
           }),
@@ -88,19 +105,18 @@ function WishlistPage({ wishlist, setWishlist }) {
       setWishlist(
         wishlist.filter(
           (item) =>
-            !(
-              Number(item.id) === Number(id) &&
-              item.type === type
-            )
+            !(item.id === id && item.type === type)
         )
       );
+
+      toast.success("Item removed from wishlist");
     } catch (error) {
       console.error(
         "Error removing wishlist item:",
         error
       );
 
-      alert(
+      toast.error(
         error.message ||
           "Failed to remove item from wishlist."
       );
@@ -108,14 +124,15 @@ function WishlistPage({ wishlist, setWishlist }) {
   };
 
   const addToCart = async (item) => {
-    if (!user?.id) {
-      alert("Please login to add items to cart.");
+    if (!userId) {
+      toast.info("Please login to add items to cart.");
+      setTimeout(() => navigate("/login"), 1000);
       return;
     }
 
     try {
       const body = {
-        user_id: user.id,
+        user_id: Number(userId),
         quantity: 1,
       };
 
@@ -150,8 +167,10 @@ function WishlistPage({ wishlist, setWishlist }) {
         );
       }
 
-      alert(
-        `${item.name || item.title} added to cart!`
+      window.dispatchEvent(new Event("cart-change"));
+
+      toast.success(
+        `🎉 ${item.name || item.title} added to cart!`
       );
     } catch (error) {
       console.error(
@@ -159,7 +178,7 @@ function WishlistPage({ wishlist, setWishlist }) {
         error
       );
 
-      alert(
+      toast.error(
         error.message ||
           "Something went wrong while adding the item to cart."
       );

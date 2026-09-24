@@ -190,8 +190,13 @@
    ASK FOR PRICE
 ===================================================== */
 
+.product-ask-price-section {
+  margin: 18px 0 12px;
+  text-align: left;
+}
+
 .product-ask-price-button {
-  margin-top: 22px;
+  margin: 0;
 
   padding: 0;
 

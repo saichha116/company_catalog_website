@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
+
 import "./App.css";
 
 import {
-  BrowserRouter,
-  Routes,
-  Route,
+    BrowserRouter,
+    Routes,
+    Route,
 } from "react-router-dom";
 
 // =========================
 // MAIN WEBSITE
 // =========================
-
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -25,9 +25,20 @@ import CheckoutPage from "./pages/CheckoutPage";
 import ProductDetails from "./pages/ProductDetails";
 
 // =========================
+// LOGIN & REGISTER
+// =========================
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+// =========================
+// TOAST NOTIFICATIONS
+// =========================
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// =========================
 // ADMIN
 // =========================
-
 import AdminLogin from "./admin/AdminLogin";
 import Dashboard from "./admin/Dashboard";
 import Categories from "./admin/Categories";
@@ -37,339 +48,366 @@ import EditProduct from "./admin/EditProduct";
 import EditCategory from "./admin/EditCategory";
 import AddCategory from "./admin/AddCategory";
 
-
 function App() {
 
-  // =========================
-  // SEARCH
-  // =========================
+    // =========================
+    // SEARCH
+    // =========================
+    const [searchTerm, setSearchTerm] = useState("");
 
-  const [searchTerm, setSearchTerm] = useState("");
-  // =========================
-  // CART
-  // =========================
+    // =========================
+    // CART
+    // =========================
+    const [cart, setCart] = useState([]);
 
-  const [cart, setCart] = useState([]);
-  // =========================
-  // WISHLIST
-  // =========================
+    // =========================
+    // WISHLIST
+    // =========================
+    const [wishlist, setWishlist] = useState([]);
 
-  const [wishlist, setWishlist] = useState([]);
-  useEffect(() => {
-  const savedUser = localStorage.getItem("user");
+    useEffect(() => {
+        const savedUser = localStorage.getItem("user");
 
-  if (!savedUser) {
-    return;
-  }
-
-  try {
-    const user = JSON.parse(savedUser);
-
-    if (!user?.id) {
-      return;
-    }
-
-    fetch(`http://localhost:5000/api/wishlist/${user.id}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to load wishlist");
+        if (!savedUser) {
+            return;
         }
 
-        return response.json();
-      })
-      .then((data) => {
-        setWishlist(data);
-      })
-      .catch((error) => {
-        console.error("Error loading wishlist:", error);
-      });
-  } catch (error) {
-    console.error("Invalid user data:", error);
-  }
-}, []);
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* =================================================
-            MAIN WEBSITE
-        ================================================= */}
-        <Route
-          path="/"
-          element={
-            <>
-              <Navbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+        try {
+            const user = JSON.parse(savedUser);
 
-              <Home
-                wishlist={wishlist}
-                setWishlist={setWishlist}
-              />
-              <Footer />
-            </>
-          }
-        />
-        {/* ABOUT */}
+            if (!user?.id) {
+                return;
+            }
 
-        <Route
-          path="/about"
-          element={
-            <>
-              <Navbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+            fetch(
+                `http://localhost:5000/api/wishlist/${user.id}`
+            )
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(
+                            "Failed to load wishlist"
+                        );
+                    }
 
-              <AboutPage />
+                    return response.json();
+                })
+                .then((data) => {
+                    setWishlist(data);
+                })
+                .catch((error) => {
+                    console.error(
+                        "Error loading wishlist:",
+                        error
+                    );
+                });
 
-              <Footer />
-            </>
-          }
-        />
+        } catch (error) {
+            console.error(
+                "Invalid user data:",
+                error
+            );
+        }
+    }, []);
 
-        {/* CONTACT */}
+    return (
+        <BrowserRouter>
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
 
-        <Route
-          path="/contact"
-          element={
-            <>
-              <Navbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+            <Routes>
 
-              <Contact />
+                {/* =================================================
+                    NORMAL LOGIN & REGISTER
+                ================================================= */}
 
-              <Footer />
-            </>
-          }
-        />
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
 
+                <Route
+                    path="/register"
+                    element={<Register />}
+                />
 
-        {/* =================================================
-            SERVICES
-        ================================================= */}
+                {/* =================================================
+                    MAIN WEBSITE
+                ================================================= */}
 
-        <Route
-          path="/services"
-          element={
-            <>
-              <Navbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+                <Route
+                    path="/"
+                    element={
+                        <>
+                            <Navbar
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
-              <Services
-                searchTerm={searchTerm}
-                wishlist={wishlist}
-                setWishlist={setWishlist}
-              />
+                            <Home
+                                wishlist={wishlist}
+                                setWishlist={setWishlist}
+                            />
 
-              <Footer />
-            </>
-          }
-        />
+                            <Footer />
+                        </>
+                    }
+                />
 
+                {/* ABOUT */}
 
-        {/* SERVICE DETAILS */}
+                <Route
+                    path="/about"
+                    element={
+                        <>
+                            <Navbar
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
-        <Route
-          path="/service/:id"
-          element={
-            <>
-              <Navbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+                            <AboutPage />
 
-              <ServiceDetails
-                wishlist={wishlist}
-                setWishlist={setWishlist}
-              />
+                            <Footer />
+                        </>
+                    }
+                />
 
-              <Footer />
-            </>
-          }
-        />
+                {/* CONTACT */}
 
+                <Route
+                    path="/contact"
+                    element={
+                        <>
+                            <Navbar
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
-        {/* =================================================
-            PRODUCTS
-        ================================================= */}
+                            <Contact />
 
-        <Route
-          path="/products"
-          element={
-            <>
-              <Navbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+                            <Footer />
+                        </>
+                    }
+                />
 
-              <ProductPage
-                cart={cart}
-                setCart={setCart}
-                wishlist={wishlist}
-                setWishlist={setWishlist}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+                {/* =================================================
+                    SERVICES
+                ================================================= */}
 
-              <Footer />
-            </>
-          }
-        />
+                <Route
+                    path="/services"
+                    element={
+                        <>
+                            <Navbar
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
+                            <Services
+                                searchTerm={searchTerm}
+                                wishlist={wishlist}
+                                setWishlist={setWishlist}
+                            />
 
-        {/* PRODUCT DETAILS */}
+                            <Footer />
+                        </>
+                    }
+                />
 
-        <Route
-          path="/product/:id"
-          element={
-            <>
-              <Navbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+                {/* SERVICE DETAILS */}
 
-              <ProductDetails
-                cart={cart}
-                setCart={setCart}
-                wishlist={wishlist}
-                setWishlist={setWishlist}
-              />
+                <Route
+                    path="/service/:id"
+                    element={
+                        <>
+                            <Navbar
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
-              <Footer />
-            </>
-          }
-        />
+                            <ServiceDetails
+                                wishlist={wishlist}
+                                setWishlist={setWishlist}
+                            />
 
+                            <Footer />
+                        </>
+                    }
+                />
 
-        {/* =================================================
-            CART
-        ================================================= */}
+                {/* =================================================
+                    PRODUCTS
+                ================================================= */}
 
-        <Route
-          path="/cart"
-          element={
-            <>
-              <Navbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+                <Route
+                    path="/products"
+                    element={
+                        <>
+                            <Navbar
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
-              <CartPage
-                cart={cart}
-                setCart={setCart}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+                            <ProductPage
+                                cart={cart}
+                                setCart={setCart}
+                                wishlist={wishlist}
+                                setWishlist={setWishlist}
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
-              <Footer />
-            </>
-          }
-        />
+                            <Footer />
+                        </>
+                    }
+                />
 
+                {/* PRODUCT DETAILS */}
 
-        {/* CHECKOUT */}
+                <Route
+                    path="/product/:id"
+                    element={
+                        <>
+                            <Navbar
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
-        <Route
-          path="/checkout"
-          element={
-            <>
-              <Navbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+                            <ProductDetails
+                                cart={cart}
+                                setCart={setCart}
+                                wishlist={wishlist}
+                                setWishlist={setWishlist}
+                            />
 
-              <CheckoutPage
-                cart={cart}
-              />
+                            <Footer />
+                        </>
+                    }
+                />
 
-              <Footer />
-            </>
-          }
-        />
+                {/* =================================================
+                    CART
+                ================================================= */}
 
+                <Route
+                    path="/cart"
+                    element={
+                        <>
+                            <Navbar
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
-        {/* WISHLIST */}
+                            <CartPage
+                                cart={cart}
+                                setCart={setCart}
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
-        <Route
-          path="/wishlist"
-          element={
-            <>
-              <Navbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+                            <Footer />
+                        </>
+                    }
+                />
 
-              <WishlistPage
-                wishlist={wishlist}
-                setWishlist={setWishlist}
-              />
+                {/* CHECKOUT */}
 
-              <Footer />
-            </>
-          }
-        />
+                <Route
+                    path="/checkout"
+                    element={
+                        <>
+                            <Navbar
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
+                            <CheckoutPage
+                                cart={cart}
+                            />
 
-        {/* =================================================
-            ADMIN
-        ================================================= */}
+                            <Footer />
+                        </>
+                    }
+                />
 
-        <Route
-          path="/admin/login"
-          element={<AdminLogin />}
-        />
+                {/* WISHLIST */}
 
+                <Route
+                    path="/wishlist"
+                    element={
+                        <>
+                            <Navbar
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
 
-        <Route
-          path="/admin/dashboard"
-          element={<Dashboard />}
-        />
+                            <WishlistPage
+                                wishlist={wishlist}
+                                setWishlist={setWishlist}
+                            />
 
+                            <Footer />
+                        </>
+                    }
+                />
 
-        <Route
-          path="/admin/products"
-          element={<Products />}
-        />
+                {/* =================================================
+                    ADMIN
+                ================================================= */}
 
+                <Route
+                    path="/admin/login"
+                    element={<AdminLogin />}
+                />
 
-        <Route
-          path="/admin/categories"
-          element={<Categories />}
-        />
+                <Route
+                    path="/admin/dashboard"
+                    element={<Dashboard />}
+                />
 
+                <Route
+                    path="/admin/products"
+                    element={<Products />}
+                />
 
-        <Route
-          path="/admin/add-product"
-          element={<AddProduct />}
-        />
+                <Route
+                    path="/admin/categories"
+                    element={<Categories />}
+                />
 
+                <Route
+                    path="/admin/add-product"
+                    element={<AddProduct />}
+                />
 
-        <Route
-          path="/admin/edit-product/:id"
-          element={<EditProduct />}
-        />
+                <Route
+                    path="/admin/edit-product/:id"
+                    element={<EditProduct />}
+                />
 
+                <Route
+                    path="/admin/add-category"
+                    element={<AddCategory />}
+                />
 
-        <Route
-          path="/admin/add-category"
-          element={<AddCategory />}
-        />
+                <Route
+                    path="/admin/edit-category/:id"
+                    element={<EditCategory />}
+                />
 
+            </Routes>
 
-        <Route
-          path="/admin/edit-category/:id"
-          element={<EditCategory />}
-        />
-
-      </Routes>
-
-    </BrowserRouter>
-  );
+        </BrowserRouter>
+    );
 }
 
 export default App;

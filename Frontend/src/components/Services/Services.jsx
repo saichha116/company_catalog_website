@@ -1,4 +1,3 @@
-
 import "./Services.css";
 
 import { useNavigate } from "react-router-dom";
@@ -39,17 +38,16 @@ function Services() {
   };
 
   return (
-    <section className="services">
+    <section className="home-services">
       <div className="heading">
-        <p className="subtitle">OUR SERVICES</p>
-        <h2></h2>
+        <h2>OUR SERVICES</h2>
       </div>
 
-      <div className="service-container">
+      <div className="home-service-container">
         {services.length > 0 ? (
           services.map((item) => (
             <div
-              className="service-card"
+              className="home-service-card"
               key={item.category_id}
               onClick={() =>
                 handleServiceClick(item.category_name)
@@ -59,15 +57,18 @@ function Services() {
                 <img
                   src={`http://localhost:5000/uploads/${item.category_image}`}
                   alt={item.category_name}
-                  className="service-image"
+                  className="home-service-image"
                 />
               ) : (
-                <div className="image-placeholder">
+                <div className="home-service-no-image">
                   No Image
                 </div>
               )}
 
-              <h3>{item.category_name}</h3>
+              <div className="home-service-overlay">
+                <h3>{item.category_name}</h3>
+                <span>Explore Services →</span>
+              </div>
             </div>
           ))
         ) : (

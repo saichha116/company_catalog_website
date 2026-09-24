@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link, NavLink } from "react-router-dom";
 import logo from "../../assets/logo.jpeg";
+import { auth } from "../../firebase/firebase";
+import { signOut } from "firebase/auth";
 
 import {
   FaHeart,
@@ -14,26 +16,88 @@ function Navbar({ searchTerm, setSearchTerm }) {
   const navigate = useNavigate();
 
   const getUser = () => {
-    const savedUser = localStorage.getItem("user");
-
-    if (savedUser) {
-      return JSON.parse(savedUser);
+    try {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        return JSON.parse(savedUser);
+      }
+    } catch (e) {
+      console.error("Error parsing user from localStorage:", e);
     }
-
     return null;
   };
 
   const [user, setUser] = useState(getUser());
+  const [cartCount, setCartCount] = useState(0);
+
+  const fetchCartCount = async () => {
+    const currentUser = getUser();
+    const currentUserId = currentUser?.id || currentUser?.user_id;
+    if (!currentUserId) {
+      setCartCount(0);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/cart/${currentUserId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          const totalQty = data.reduce((acc, item) => acc + (Number(item.quantity) || 1), 0);
+          setCartCount(totalQty);
+        } else {
+          setCartCount(0);
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching cart count:", e);
+    }
+  };
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setUser(getUser());
+    };
+
+    window.addEventListener("auth-change", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("auth-change", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchCartCount();
+
+    const handleCartChange = () => {
+      fetchCartCount();
+    };
+
+    window.addEventListener("cart-change", handleCartChange);
+
+    return () => {
+      window.removeEventListener("cart-change", handleCartChange);
+    };
+  }, [user]);
 
   const [showProfile, setShowProfile] = useState(false);
 
+  const userName = user?.full_name || user?.name || "";
   const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState(user?.name || "");
+  const [editName, setEditName] = useState(userName);
   const [editPhone, setEditPhone] = useState(user?.phone || "");
   const [editEmail, setEditEmail] = useState(user?.email || "");
 
+  useEffect(() => {
+    setEditName(user?.full_name || user?.name || "");
+    setEditPhone(user?.phone || "");
+    setEditEmail(user?.email || "");
+  }, [user]);
+
   const handleEdit = () => {
-    setEditName(user?.name || "");
+    setEditName(user?.full_name || user?.name || "");
     setEditPhone(user?.phone || "");
     setEditEmail(user?.email || "");
     setIsEditing(true);
@@ -42,42 +106,52 @@ function Navbar({ searchTerm, setSearchTerm }) {
   const handleSave = () => {
     const updatedUser = {
       ...user,
+      full_name: editName,
       name: editName,
       phone: editPhone,
       email: editEmail,
     };
 
     localStorage.setItem("user", JSON.stringify(updatedUser));
-
     setUser(updatedUser);
     setIsEditing(false);
+    window.dispatchEvent(new Event("auth-change"));
 
     alert("Profile updated successfully!");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.log("Firebase signout error:", err);
+    }
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     setUser(null);
     setShowProfile(false);
+    window.dispatchEvent(new Event("auth-change"));
 
     alert("You have been logged out!");
   };
 
-  const userInitial = user?.name
-    ? user.name.charAt(0).toUpperCase()
+  const userInitial = userName
+    ? userName.charAt(0).toUpperCase()
     : "U";
+
+
+  const triggerSearch = () => {
+    const search = (searchTerm || "").trim();
+    if (search) {
+      navigate(`/products?search=${encodeURIComponent(search)}`);
+    } else {
+      navigate("/products");
+    }
+  };
 
   const handleSearch = (e) => {
     if (e.key === "Enter") {
-      const search = searchTerm.trim();
-
-      if (search) {
-        navigate(
-          `/products?search=${encodeURIComponent(search)}`
-        );
-      } else {
-        navigate("/products");
-      }
+      triggerSearch();
     }
   };
 
@@ -113,6 +187,8 @@ function Navbar({ searchTerm, setSearchTerm }) {
           }}
         >
           <FaSearch
+            onClick={triggerSearch}
+            title="Search"
             style={{
               position: "absolute",
               left: "18px",
@@ -120,6 +196,7 @@ function Navbar({ searchTerm, setSearchTerm }) {
               transform: "translateY(-50%)",
               color: "#000",
               fontSize: "16px",
+              cursor: "pointer",
             }}
           />
 
@@ -134,7 +211,7 @@ function Navbar({ searchTerm, setSearchTerm }) {
             style={{
               width: "100%",
               height: "45px",
-              padding: "0 20px 0 45px",
+              padding: searchTerm ? "0 45px 0 45px" : "0 20px 0 45px",
               fontSize: "16px",
               border: "1px solid #ddd",
               borderRadius: "25px",
@@ -144,12 +221,31 @@ function Navbar({ searchTerm, setSearchTerm }) {
               boxSizing: "border-box",
             }}
           />
+
+          {searchTerm && (
+            <FaTimes
+              onClick={() => {
+                setSearchTerm("");
+                navigate("/");
+              }}
+              title="Clear search"
+              style={{
+                position: "absolute",
+                right: "18px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#666",
+                fontSize: "15px",
+                cursor: "pointer",
+              }}
+            />
+          )}
         </div>
 
         <div
           style={{
             display: "flex",
-            gap: "20px",
+            gap: "36px",
             fontSize: "24px",
             color: "#000",
             alignItems: "center",
@@ -172,9 +268,35 @@ function Navbar({ searchTerm, setSearchTerm }) {
               textDecoration: "none",
               display: "flex",
               alignItems: "center",
+              position: "relative",
             }}
+            title="Shopping Cart"
           >
             <FaShoppingCart />
+            {cartCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "-8px",
+                  right: "-10px",
+                  backgroundColor: "#e53e3e",
+                  color: "#fff",
+                  fontSize: "11px",
+                  fontWeight: "bold",
+                  borderRadius: "50%",
+                  minWidth: "18px",
+                  height: "18px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0 4px",
+                  boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                  pointerEvents: "none",
+                }}
+              >
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
           </Link>
 
           <div
@@ -190,17 +312,32 @@ function Navbar({ searchTerm, setSearchTerm }) {
                 width: "40px",
                 height: "40px",
                 borderRadius: "50%",
-                background: "#000",
-                color: "#fff",
+                background: user ? "#000" : "#f0f2f5",
+                color: user ? "#fff" : "#333",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: "18px",
                 fontWeight: "bold",
                 cursor: "pointer",
+                overflow: "hidden",
+                border: "1px solid #ddd",
               }}
+              title={user ? userName : "Sign In"}
             >
-              {userInitial}
+              {user?.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={userName}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                userInitial
+              )}
             </div>
 
             {showProfile && (
@@ -238,17 +375,31 @@ function Navbar({ searchTerm, setSearchTerm }) {
                     width: "70px",
                     height: "70px",
                     borderRadius: "50%",
-                    background: "#000",
-                    color: "#fff",
+                    background: user ? "#000" : "#f0f2f5",
+                    color: user ? "#fff" : "#333",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: "30px",
                     fontWeight: "bold",
                     margin: "10px auto 15px",
+                    overflow: "hidden",
+                    border: "1px solid #ddd",
                   }}
                 >
-                  {userInitial}
+                  {user?.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt={userName}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    userInitial
+                  )}
                 </div>
 
                 {!user ? (
@@ -257,11 +408,29 @@ function Navbar({ searchTerm, setSearchTerm }) {
                       textAlign: "center",
                     }}
                   >
-                    <h3>Welcome!</h3>
-                    <p>
-                      Please login to view your
-                      profile.
+                    <h3 style={{ margin: "0 0 8px" }}>Welcome!</h3>
+                    <p style={{ color: "#666", fontSize: "14px", margin: "0 0 16px" }}>
+                      Sign in to access your profile, cart, and orders.
                     </p>
+                    <button
+                      onClick={() => {
+                        setShowProfile(false);
+                        navigate("/login");
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "10px",
+                        background: "#000",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "8px",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        fontSize: "15px",
+                      }}
+                    >
+                      Sign In / Register
+                    </button>
                   </div>
                 ) : isEditing ? (
                   <div>
@@ -372,18 +541,20 @@ function Navbar({ searchTerm, setSearchTerm }) {
                         marginBottom: "20px",
                       }}
                     >
-                      {user.name}
+                      {userName}
                     </h3>
 
                     <p>
                       <strong>Name:</strong>{" "}
-                      {user.name}
+                      {userName}
                     </p>
 
-                    <p>
-                      <strong>Phone:</strong>{" "}
-                      {user.phone}
-                    </p>
+                    {user.phone && (
+                      <p>
+                        <strong>Phone:</strong>{" "}
+                        {user.phone}
+                      </p>
+                    )}
 
                     <p
                       style={{

@@ -1,12 +1,14 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import "../styles/service-details.css";
 
 function ServiceDetails({
     wishlist,
     setWishlist,
 }) {
+    const navigate = useNavigate();
     const { id } = useParams();
 
     const [quantity, setQuantity] = useState(1);
@@ -120,13 +122,28 @@ function ServiceDetails({
     // =========================
     const handleAddToCart = async () => {
         try {
-            // Get logged-in user ID
-            const userId =
-                localStorage.getItem("user_id") ||
-                localStorage.getItem("userId");
+            const savedUser = localStorage.getItem("user");
+
+            if (!savedUser) {
+                toast.info("Please login to add services to your cart.");
+                setTimeout(() => navigate("/login"), 1000);
+                return;
+            }
+
+            let user;
+            try {
+                user = JSON.parse(savedUser);
+            } catch (e) {
+                console.error("Invalid user JSON:", e);
+                toast.error("Invalid login session. Please login again.");
+                return;
+            }
+
+            const userId = user?.id || user?.user_id;
 
             if (!userId) {
-                alert("Please login to add items to cart.");
+                toast.info("Please login to add services to your cart.");
+                setTimeout(() => navigate("/login"), 1000);
                 return;
             }
 
@@ -140,26 +157,20 @@ function ServiceDetails({
                 }
             );
 
-            alert(
-                response.data.message ||
-                    `${service.service_name} added to cart!`
+            // Notify Navbar and app of cart change
+            window.dispatchEvent(new Event("cart-change"));
+
+            toast.success(
+                response.data?.message ||
+                    `🎉 ${service.service_name} added to cart!`
             );
         } catch (error) {
-            console.log(
-                "Add service to cart error:",
-                error
-            );
+            console.error("Add service to cart error:", error);
 
-            if (error.response) {
-                alert(
-                    error.response.data.message ||
-                        "Failed to add service to cart."
-                );
-            } else {
-                alert(
-                    "Unable to connect to the server."
-                );
-            }
+            toast.error(
+                error.response?.data?.message ||
+                    "Failed to add service to cart."
+            );
         }
     };
 
@@ -219,6 +230,22 @@ function ServiceDetails({
                             {service.description ||
                                 `We provide high-quality ${service.service_name.toLowerCase()} services according to your requirements. Our team provides reliable and professional solutions for your printing, branding and fabrication needs.`}
                         </p>
+
+                        {/* =========================
+                            ASK FOR PRICE
+                        ========================= */}
+                        <div className="service-ask-price-section">
+                            <a
+                                href={`https://wa.me/919422588241?text=${encodeURIComponent(
+                                    `Hello, I would like to ask for the price of ${service.service_name}.`
+                                )}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="service-ask-price-button"
+                            >
+                                Ask for Price
+                            </a>
+                        </div>
 
                         {/* =========================
                             QUANTITY
@@ -286,35 +313,6 @@ function ServiceDetails({
                                     ? "♥ Wishlisted"
                                     : "♡ Wishlist"}
                             </button>
-
-                        </div>
-
-                        {/* =========================
-                            SERVICE DETAILS
-                        ========================= */}
-                        <div className="product-details">
-
-                            <h3>
-                                Service Details
-                            </h3>
-
-                            <ul>
-                                <li>
-                                    Category:{" "}
-                                    {service.category}
-                                </li>
-
-                                <li>
-                                    Professional quality
-                                    service
-                                </li>
-
-                                <li>
-                                    Suitable for personal
-                                    and business
-                                    requirements
-                                </li>
-                            </ul>
 
                         </div>
 

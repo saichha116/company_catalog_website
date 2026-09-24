@@ -28,7 +28,23 @@ function CheckoutPage() {
     }
   };
 
-  const user = getUser();
+  const [user, setUser] = useState(getUser());
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setUser(getUser());
+    };
+
+    window.addEventListener("auth-change", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("auth-change", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
+  }, []);
+
+  const userId = user?.id || user?.user_id;
 
   const getImageUrl = (image) => {
     if (!image) {
@@ -54,7 +70,7 @@ function CheckoutPage() {
   };
 
   const loadCart = async () => {
-    if (!user?.id) {
+    if (!userId) {
       setCart([]);
       setLoading(false);
       return;
@@ -62,7 +78,7 @@ function CheckoutPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/cart/${user.id}`
+        `http://localhost:5000/api/cart/${userId}`
       );
 
       const data = await response.json();
@@ -75,7 +91,7 @@ function CheckoutPage() {
         );
       }
 
-      setCart(data);
+      setCart(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(
         "Checkout cart loading error:",
@@ -90,7 +106,7 @@ function CheckoutPage() {
 
   useEffect(() => {
     loadCart();
-  }, [user?.id]);
+  }, [userId]);
 
   const handleChange = (e) => {
     setCustomer({
@@ -123,7 +139,7 @@ function CheckoutPage() {
       No spaces
       No brackets
     */
-    const whatsappNumber = "919403213361";
+    const whatsappNumber = "919422588241";
 
     let message =
       "Hello, I would like to place an order.\n\n";
@@ -172,7 +188,7 @@ function CheckoutPage() {
     );
   }
 
-  if (!user?.id) {
+  if (!userId) {
     return (
       <div className="checkout-page">
         <div className="checkout-container">

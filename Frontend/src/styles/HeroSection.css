@@ -1,32 +1,68 @@
-.hero {
-  width: 93%;
-  height: 175px;
-  margin: 25px auto;
-  border-radius: 15px;
-  overflow: hidden;
+/* =========================================================
+   PRODUCT PAGE HERO BANNER
+========================================================= */
 
-  background: url("https://images.unsplash.com/photo-1517842645767-c639042777db?w=1200")
-    center/cover no-repeat;
+.product-hero-banner {
+  width: 96%;
+  max-width: 1600px;
+  height: 140px;
+  margin: 20px auto 30px;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  background-size: cover;
+  background-position: center 63%;
+  background-repeat: no-repeat;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
 
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding-left: 70px;
+  padding-left: 55px;
+  box-sizing: border-box;
 }
 
-.hero-overlay {
+.product-hero-content {
   text-align: left;
 }
 
-.hero-overlay h1 {
-  font-size: 52px;
-  font-weight: 700;
-  color:white;
+.product-hero-content h1 {
+  font-size: 38px;
+  font-weight: 800;
+  color: #000000;
   margin: 0;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
-.hero-overlay p {
-  margin-top: 10px;
-  font-size: 18px;
-  color:white;
+/* =========================================================
+   RESPONSIVE DESIGN
+========================================================= */
+
+@media (max-width: 900px) {
+  .product-hero-banner {
+    width: 95%;
+    height: 120px;
+    padding-left: 35px;
+    margin: 18px auto 24px;
+  }
+
+  .product-hero-content h1 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 600px) {
+  .product-hero-banner {
+    width: 96%;
+    height: 105px;
+    padding-left: 22px;
+    margin: 15px auto 20px;
+    border-radius: 10px;
+  }
+
+  .product-hero-content h1 {
+    font-size: 24px;
+  }
 }

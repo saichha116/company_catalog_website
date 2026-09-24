@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function ServiceCard({
   id,
@@ -167,8 +168,11 @@ function ServiceCard({
   const handleAddToCart = async (e) => {
     e.stopPropagation();
 
-    if (!user || !user.id) {
-      alert("Please login to add services to cart.");
+    const userId = user?.id || user?.user_id;
+
+    if (!userId) {
+      toast.info("Please login to add services to your cart.");
+      setTimeout(() => navigate("/login"), 1000);
       return;
     }
 
@@ -181,7 +185,7 @@ function ServiceCard({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            user_id: user.id,
+            user_id: Number(userId),
             service_id: id,
             quantity: 1,
           }),
@@ -190,8 +194,6 @@ function ServiceCard({
 
       const data = await response.json();
 
-      console.log("ADD SERVICE TO CART RESPONSE:", data);
-
       if (!response.ok) {
         throw new Error(
           data.message ||
@@ -199,11 +201,12 @@ function ServiceCard({
         );
       }
 
-      alert(`${title} added to cart!`);
+      window.dispatchEvent(new Event("cart-change"));
+      toast.success(`🎉 ${title} added to cart!`);
     } catch (error) {
       console.error("Add service to cart error:", error);
 
-      alert(
+      toast.error(
         error.message ||
           "Something went wrong while adding the service to cart."
       );

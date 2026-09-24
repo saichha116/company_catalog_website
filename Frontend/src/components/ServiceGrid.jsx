@@ -39,85 +39,48 @@ function ServiceGrid({
         : filteredServices;
 
     return (
-        <section className="services">
-
-            <div className="heading">
-
-                {activeCategory === "All" ? (
-                    <>
-                        <p className="subtitle">
-                            OUR SERVICES
-                        </p>
-
-                        <h2>
-                            What We Offer
-                        </h2>
-                    </>
-                ) : (
-                    <>
-                        <p className="subtitle">
-                            {activeCategory}
-                        </p>
-                    </>
-                )}
-
+        <section className="services-page-section">
+            <div className="services-heading">
+                <h2>{activeCategory}</h2>
             </div>
 
-
             <div className="services-grid">
-
                 {displayedServices.length > 0 ? (
-
                     displayedServices.map((service) => (
-
                         <ServiceCard
                             key={service.service_id}
-
                             id={service.service_id}
-
                             image={
                                 service.image
                                     ? `http://localhost:5000/uploads/${service.image}`
                                     : "/images/service-placeholder.jpg"
                             }
-
                             title={
                                 service.service_name
                             }
-
                             category={
                                 service.category
                             }
-
                             description={
                                 service.description
                             }
-
                             fromHome={
                                 fromHome
                             }
-
                             wishlist={
                                 wishlist
                             }
-
                             setWishlist={
                                 setWishlist
                             }
                         />
-
                     ))
-
                 ) : (
-
                     <p className="no-services">
                         No services found.
                     </p>
-
                 )}
-
             </div>
-
         </section>
     );
 }

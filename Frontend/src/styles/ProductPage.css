@@ -212,19 +212,106 @@
 
 
 /* =========================
+   SEARCH RESULTS HEADER
+========================= */
+
+.search-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 10px 0 20px;
+  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 10px;
+}
+
+.search-results-header h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 6px 0;
+}
+
+.search-results-header h2 span {
+  color: #d97706;
+}
+
+.search-results-count {
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+}
+
+.clear-search-btn {
+  background: #f4f4f6;
+  color: #222;
+  border: 1px solid #dcdcdc;
+  padding: 9px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.clear-search-btn:hover {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+/* =========================
    NO PRODUCTS
 ========================= */
 
 .no-products {
   width: 100%;
+  grid-column: 1 / -1;
   padding: 60px 20px;
-
   text-align: center;
+  background: #fafafa;
+  border-radius: 16px;
+  border: 1px dashed #ddd;
+}
+
+.no-products-icon {
+  font-size: 44px;
+  margin-bottom: 14px;
 }
 
 .no-products h3 {
-  color: #555;
-  font-size: 20px;
+  color: #222;
+  font-size: 22px;
+  margin: 0 0 8px 0;
+}
+
+.no-products p {
+  color: #666;
+  font-size: 15px;
+  margin: 0 0 20px 0;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.clear-search-btn-primary {
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 25px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.clear-search-btn-primary:hover {
+  background: #333;
 }
 
 

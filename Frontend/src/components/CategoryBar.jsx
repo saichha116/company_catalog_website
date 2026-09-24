@@ -1,3 +1,5 @@
+import "../styles/CategoryFilter.css";
+
 function CategoryBar({
   services = [],
   activeCategory,
@@ -13,18 +15,21 @@ function CategoryBar({
   ];
 
   return (
-    <div className="category-bar">
-      {categories.map((category) => (
-        <button
-          key={category}
-          className={
-            activeCategory === category ? "active" : ""
-          }
-          onClick={() => setActiveCategory(category)}
-        >
-          {category}
-        </button>
-      ))}
+    <div className="category-filter-wrapper category-bar-wrapper">
+      <div className="category-container">
+        {categories.map((category) => (
+          <button
+            key={category}
+            type="button"
+            className={
+              activeCategory === category ? "active" : ""
+            }
+            onClick={() => setActiveCategory(category)}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

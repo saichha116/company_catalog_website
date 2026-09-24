@@ -5,81 +5,152 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
+import { Autoplay, Navigation } from "swiper/modules";
 
 import "swiper/css";
+import "swiper/css/navigation";
 
 function BestSellers() {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState([]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/categories")
-      .then((res) => {
-        console.log("Best Seller Categories:", res.data);
+    Promise.all([
+      axios
+        .get("http://localhost:5000/api/products")
+        .catch((err) => {
+          console.error("Products fetch error in BestSellers:", err);
+          return { data: [] };
+        }),
+      axios
+        .get("http://localhost:5000/api/services")
+        .catch((err) => {
+          console.error("Services fetch error in BestSellers:", err);
+          return { data: [] };
+        }),
+    ]).then(([productsRes, servicesRes]) => {
+      const products = Array.isArray(productsRes.data)
+        ? productsRes.data
+        : [];
+      const services = Array.isArray(servicesRes.data)
+        ? servicesRes.data
+        : [];
 
-        // ONLY product categories
-        const productCategories = res.data.filter(
-          (category) =>
-            String(category.main_category_id) === "1"
-        );
+      const formattedProducts = products.map((p) => ({
+        id: p.product_id,
+        name: p.product_name,
+        image: p.image,
+        type: "Product",
+        category: p.category_name,
+        link: `/product/${p.product_id}`,
+      }));
 
-        setCategories(productCategories);
-      })
-      .catch((err) => {
-        console.error(
-          "Failed to fetch best seller categories:",
-          err
-        );
-      });
+      const formattedServices = services.map((s) => ({
+        id: s.service_id,
+        name: s.service_name,
+        image: s.image,
+        type: "Service",
+        category: s.category || "Service",
+        link: `/service/${s.service_id}`,
+      }));
+
+      // Combine and shuffle random items from products and services
+      const combined = [...formattedProducts, ...formattedServices];
+      const shuffled = combined.sort(() => 0.5 - Math.random());
+
+      // Set items for sliding carousel
+      setItems(shuffled.slice(0, 16));
+      setLoading(false);
+    });
   }, []);
 
-  const handleCategoryClick = (categoryName) => {
-    navigate(
-      `/products?category=${encodeURIComponent(categoryName)}`
-    );
-  };
+  if (loading || items.length === 0) {
+    return null;
+  }
 
   return (
     <section className="bestsellers">
       <div className="heading">
-        <h2>Best Sellers</h2>
+        <h2>BEST SELLERS</h2>
       </div>
 
       <Swiper
-        modules={[Autoplay]}
+        modules={[Autoplay, Navigation]}
         slidesPerView={4}
         spaceBetween={25}
-        loop={categories.length >= 4}
+        loop={items.length > 4}
         autoplay={{
           delay: 2500,
           disableOnInteraction: false,
+          pauseOnMouseEnter: true,
         }}
-        speed={1500}
+        speed={800}
+        navigation
+        breakpoints={{
+          320: {
+            slidesPerView: 1,
+            spaceBetween: 15,
+          },
+          600: {
+            slidesPerView: 2,
+            spaceBetween: 18,
+          },
+          900: {
+            slidesPerView: 3,
+            spaceBetween: 20,
+          },
+          1100: {
+            slidesPerView: 4,
+            spaceBetween: 25,
+          },
+        }}
         className="bestseller-swiper"
       >
-        {categories.map((item) => (
-          <SwiperSlide key={item.category_id}>
+        {items.map((item) => (
+          <SwiperSlide key={`${item.type}-${item.id}`}>
             <div
               className="bestseller-card"
-              onClick={() =>
-                handleCategoryClick(item.category_name)
-              }
+              onClick={() => navigate(item.link)}
             >
-              {item.category_image ? (
-                <img
-                  src={`http://localhost:5000/uploads/${item.category_image}`}
-                  alt={item.category_name}
-                  className="bestseller-image"
-                />
-              ) : (
-                <div className="image-placeholder">
-                  No Image
-                </div>
-              )}
+              <span
+                className={`bestseller-badge ${
+                  item.type === "Product"
+                    ? "bestseller-badge-product"
+                    : "bestseller-badge-service"
+                }`}
+              >
+                {item.type}
+              </span>
 
-              <h3>{item.category_name}</h3>
+              {item.image ? (
+                <img
+                  src={`http://localhost:5000/uploads/${item.image}`}
+                  alt={item.name}
+                  className="bestseller-image"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                    if (e.target.nextSibling) {
+                      e.target.nextSibling.style.display = "flex";
+                    }
+                  }}
+                />
+              ) : null}
+
+              <div
+                className="bestseller-no-image"
+                style={{
+                  display: item.image ? "none" : "flex",
+                }}
+              >
+                No Image
+              </div>
+
+              <div className="bestseller-overlay">
+                <h3>{item.name}</h3>
+                <span>Explore {item.type} →</span>
+              </div>
             </div>
           </SwiperSlide>
         ))}

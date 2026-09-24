@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import "../pages/CartPage.css";
 
@@ -28,7 +29,23 @@ function CartPage() {
     }
   };
 
-  const user = getUser();
+  const [user, setUser] = useState(getUser());
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setUser(getUser());
+    };
+
+    window.addEventListener("auth-change", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("auth-change", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
+  }, []);
+
+  const userId = user?.id || user?.user_id;
 
   // ======================================
   // IMAGE URL
@@ -74,7 +91,7 @@ function CartPage() {
   // ======================================
 
   const loadCart = async () => {
-    if (!user?.id) {
+    if (!userId) {
       setCartItems([]);
       setLoading(false);
       return;
@@ -82,7 +99,7 @@ function CartPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/cart/${user.id}`
+        `http://localhost:5000/api/cart/${userId}`
       );
 
       const data = await response.json();
@@ -95,7 +112,7 @@ function CartPage() {
         );
       }
 
-      setCartItems(data);
+      setCartItems(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Cart loading error:", error);
       setCartItems([]);
@@ -106,7 +123,17 @@ function CartPage() {
 
   useEffect(() => {
     loadCart();
-  }, [user?.id]);
+
+    const handleCartChange = () => {
+      loadCart();
+    };
+
+    window.addEventListener("cart-change", handleCartChange);
+
+    return () => {
+      window.removeEventListener("cart-change", handleCartChange);
+    };
+  }, [userId]);
 
   // ======================================
   // UPDATE QUANTITY
@@ -153,13 +180,15 @@ function CartPage() {
             : item
         )
       );
+
+      window.dispatchEvent(new Event("cart-change"));
     } catch (error) {
       console.error(
         "Quantity update error:",
         error
       );
 
-      alert(
+      toast.error(
         error.message ||
           "Unable to update quantity."
       );
@@ -196,13 +225,16 @@ function CartPage() {
             item.cart_item_id !== cartItemId
         )
       );
+
+      window.dispatchEvent(new Event("cart-change"));
+      toast.success("Item removed from cart");
     } catch (error) {
       console.error(
         "Remove cart item error:",
         error
       );
 
-      alert(
+      toast.error(
         error.message ||
           "Unable to remove item."
       );
@@ -224,6 +256,36 @@ function CartPage() {
 
         <p>Loading cart...</p>
 
+      </div>
+    );
+  }
+
+  // ======================================
+  // NOT LOGGED IN
+  // ======================================
+
+  if (!userId) {
+    return (
+      <div className="cart-container">
+        <div className="cart-heading">
+          <h1>Shopping Cart</h1>
+          <div className="heading-line"></div>
+        </div>
+
+        <div className="empty-cart">
+          <h2>Please Log In</h2>
+          <p>
+            You need to be logged in to view and manage your cart.
+          </p>
+          <button
+            type="button"
+            onClick={() =>
+              navigate("/login")
+            }
+          >
+            Log In Now
+          </button>
+        </div>
       </div>
     );
   }
