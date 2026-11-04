@@ -155,6 +155,8 @@ function Register() {
                 toast.warning("Pop-up blocked! Please allow pop-ups for this site.");
             } else if (error.code === "auth/configuration-not-found") {
                 toast.error("⚠️ Google Sign-In is not enabled yet in Firebase Console. Go to Firebase Console -> Authentication -> Sign-in method -> Enable Google.", { autoClose: 7000 });
+            } else if (error.code === "auth/network-request-failed") {
+                toast.error("⚠️ Network Request Failed! Please check: 1) Disable Ad-blocker/Brave Shields, 2) Add 'localhost' to Firebase Console -> Authentication -> Settings -> Authorized domains.", { autoClose: 9000 });
             } else {
                 toast.error(
                     error.response?.data?.message ||

@@ -20,7 +20,7 @@ function Footer() {
           <h2>
             DESIGN AND
             <br />
-            PRINTING
+            PRINTS
           </h2>
 
           <p className="footer-tagline">
@@ -73,7 +73,7 @@ function Footer() {
               <FaPhoneAlt />
             </span>
 
-            <span>+91 8806453029</span>
+            <span>+91 8275001108</span>
           </p>
 
           <p>
